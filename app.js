@@ -8,7 +8,7 @@ var express = require('express'),
 app.use(cors());
 
 app.get("/", function (req, res) {
-    res.sendFile(__dirname + "/index.html")
+    res.send("OK");
 })
 
 server.listen(PORT,function(){
