@@ -6,7 +6,7 @@ var express = require('express'),
     PORT = process.env.PORT || 4000;
 
 app.use(cors());
-
+f
 app.get("/", function (req, res) {
     res.send("OK ; ds;dasd");
 });
