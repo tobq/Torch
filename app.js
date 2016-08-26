@@ -2,14 +2,14 @@ var express = require('express'),
     app = express(),
     server = require("http").createServer(app),
     io = require("socket.io").listen(server),
-    cors = require("cors")
+    cors = require("cors"),
     PORT = process.env.PORT || 4000;
 
 app.use(cors());
 
 app.get("/", function (req, res) {
-    res.sendFile(__dirname + "/index.html")
-})
+    res.send("OK ; ds;dasd");
+});
 
 server.listen(PORT,function(){
     console.log("Running att http://localhost:"+PORT)
