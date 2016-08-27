@@ -18,18 +18,21 @@ server.listen(PORT,IP, function(){
 });
 
 io.on('connection', function (socket) {
-    var A = Math.random() * 2 * Math.PI,
+    var angle = Math.random() * 2 * Math.PI,
+        Speed = 0,
         x = Math.random(),
         y = Math.random(),
         update = setInterval(function () {
-            x = Math.min(Math.max((Math.cos(A)/(100/playerSpeed)) + x, 0), 1);
-            y = Math.min(Math.max((Math.sin(A)/(100/playerSpeed)) + y, 0), 1);
+            x = Math.min(Math.max((Math.cos(angle)/(100/Speed)) + x, 0), 1);
+            y = Math.min(Math.max((Math.sin(angle)/(100/Speed)) + y, 0), 1);
             io.emit("u", {id: socket.id, x: x, y: y});
         }, 100);
 
     console.log('> New connection');
-    socket.on('a', function (a) {
-        A = a;
+    socket.on('i', function (i) {
+        angle = i.a;
+        Speed = Math.min(Math.max(i.d*5-0.075,0),playerSpeed);
+        console.log(Speed)
     });
     socket.once('disconnect', function () {
         clearInterval(update);
