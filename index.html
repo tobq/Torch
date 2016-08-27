@@ -59,7 +59,7 @@
 
     $(window).resize(setCanvas);
     $(document).mousemove(function (e) {
-        if (Date.now() - last > 16) {
+        if (Date.now() - last > 100) {
             var distance = Math.sqrt(Math.pow((($(document).width() / 2) - e.pageX ) / $(document).width(), 2) + Math.pow((($(document).height() / 2) - e.pageY ) / $(document).height(), 2)),
                     angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
             socket.emit("i", {a: angle, d: distance});
