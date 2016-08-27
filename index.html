@@ -26,6 +26,7 @@
             right: 0px;
             left: 0px;
             margin: auto;
+            border: 1px solid black;
         }
     </style>
 </head>
@@ -34,36 +35,50 @@
 <canvas id="map" width="110" height="110"></canvas>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+    if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+    }
     var last = 0,
             canvas = $("#map")[0],
             ctx = canvas.getContext("2d"),
             socket = io(),
-            x=0,
-            y=0,
-            players={};
+            x = 0,
+            y = 0,
+            players = {},
+            sizes = {};
 
-    if (!window.requestAnimationFrame) {
-        window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function(callback) {
-            window.setTimeout(callback, 1000 / 60);
-        };
+    sizes.border = 50;
+
+    function setCanvas() {
+        sizes.canvas = Math.min($(document).width(), $(document).height());
+        sizes.ball = 20;
+        sizes.toFit = (sizes.canvas * sizes.canvas) / (sizes.canvas + sizes.border);
+        sizes.correct = (sizes.canvas * sizes.border) / ((sizes.canvas + sizes.border) * 2) - (sizes.ball / 2);
+        canvas.width = sizes.canvas;
+        canvas.height = sizes.canvas;
+
     }
-    $(document).mousemove(function(e) {
+    setCanvas();
+    $(window).resize(setCanvas);
+    $(document).mousemove(function (e) {
         if (Date.now() - last > 100) {
             socket.emit("a", Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2));
             last = Date.now();
         }
     });
     (function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        for (var player in players) ctx.fillRect(players[player].x,players[player].y,2,2);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var id in players) ctx.fillRect(players[id].x * sizes.toFit + sizes.correct, players[id].y * sizes.toFit + sizes.correct, sizes.ball, sizes.ball);
         requestAnimationFrame(draw);
     })();
-    socket.on("u", function(u) {
-        players[u.id] = {x:u.x,y:u.y}
+    socket.on("u", function (u) {
+        players[u.id] = {x: u.x, y: u.y}
     })
     socket.on('d', function (id) {
         delete players[id];
