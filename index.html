@@ -14,7 +14,7 @@
         }
 
         body, html {
-            background: #152531;
+            background: #040b10;
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -53,14 +53,15 @@
                 back: 1000,
                 ball: 20
             },
-            back = new Image();
+            back = new Image(),
+            view = ctx.createLinearGradient(0, 0, 0, 500);
 
-    back.src = "https://thumbs.dreamstime.com/x/green-grass-field-square-6145149.jpg";
+    back.src = "";
 
     $(window).resize(setCanvas);
     $(document).mousemove(function (e) {
         if (Date.now() - last > 16) {
-            var distance = Math.sqrt(Math.pow((($(document).width() / 2) - e.pageX ) / $(document).width(), 2) + Math.pow((($(document).height() / 2) - e.pageY ) / $(document).height(), 2)),
+            var distance = Math.sqrt(Math.pow((($(document).width() / 2) - e.pageX ), 2) + Math.pow((($(document).height() / 2) - e.pageY ), 2)),
                     angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
             socket.emit("i", {a: angle, d: distance});
             last = Date.now();
@@ -69,38 +70,28 @@
     function setCanvas() {
         canvas.width = $(document).width();
         canvas.height = $(document).height();
+        sizes.toEnd = Math.max($(document).height(),$(document).width());
+        view = ctx.createLinearGradient(0, 0, 0, -sizes.toEnd);
+        view.addColorStop(0.5, "#FFF");
+        view.addColorStop(1, "rgba(255,255,255,0)");
     }
     setCanvas();
     (function draw() {
-        var view = ctx.createLinearGradient(0, 400, 0, 500),
-                base;
-        view.addColorStop(0, "#FFF");
-        view.addColorStop(1, "rgba(0,0,0,0)");
+        var base;
         if (base = players["/#" + socket.id]) {
-            ctx.fillStyle = '#FFF';
-            ctx.strokeStyle = '#FFF';
-            ctx.lineWidth = 4;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(back, canvas.width / 2 - (sizes.back * base.x), canvas.height / 2 - (sizes.back * base.y), sizes.back, sizes.back);
-//            ctx.save();
-//                ctx.translate(canvas.width/2,canvas.height/2);
-//                ctx.rotate(base.a+(Math.PI/2));
-//                ctx.beginPath();
-//                ctx.arc(0,0, sizes.ball, 0, Math.PI);
-//                ctx.fill();
-//                ctx.stroke();
-//            ctx.restore();
+            ctx.fillStyle=view;
             for (var id in players) {
                 ctx.save();
                     ctx.translate((canvas.width / 2) - (sizes.back * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back * (base.y - players[id].y)));
                     ctx.rotate(players[id].a+(Math.PI/2));
                     ctx.beginPath();
                     ctx.arc(0,0, sizes.ball, 0, Math.PI);
-                    ctx.lineTo(0,3);
-                    ctx.lineTo(3,0);
-                    ctx.fill();
-                    ctx.stroke();
+                    ctx.lineTo(-(sizes.ball+50)/2,-sizes.toEnd);
+                    ctx.lineTo((sizes.ball+50)/2,-sizes.toEnd);
                     ctx.closePath();
+                    ctx.fill();
                 ctx.restore();
             }
         }
@@ -118,3 +109,12 @@
 </script>
 </body>
 </html>
+
+<!--//            ctx.save();-->
+<!--//                ctx.translate(canvas.width/2,canvas.height/2);-->
+<!--//                ctx.rotate(base.a+(Math.PI/2));-->
+<!--//                ctx.beginPath();-->
+<!--//                ctx.arc(0,0, sizes.ball, 0, Math.PI);-->
+<!--//                ctx.fill();-->
+<!--//                ctx.stroke();-->
+<!--//            ctx.restore();-->
