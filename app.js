@@ -5,7 +5,7 @@ var express = require('express'),
     cors = require("cors"),
     IP = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',
     PORT = process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    playerSpeed = 1;
+    playerSpeed = 0.1;
 
 app.use(cors());
 
@@ -25,8 +25,8 @@ io.on('connection', function (socket) {
         update = setInterval(function () {
             x = Math.min(Math.max((Math.cos(angle)/(100/Speed)) + x, 0), 1);
             y = Math.min(Math.max((Math.sin(angle)/(100/Speed)) + y, 0), 1);
-            io.emit("u", {id: socket.id, x: x, y: y});
-        }, 100);
+            io.emit("u", {id: socket.id, x: x, y: y,a: angle});
+        }, 16);
 
     console.log('> New connection');
     socket.on('i', function (i) {
