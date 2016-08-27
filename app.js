@@ -3,16 +3,17 @@ var express = require('express'),
     server = require("http").createServer(app),
     io = require("socket.io").listen(server),
     cors = require("cors"),
-    PORT = process.env.PORT || 4000;
+    IP = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',
+    PORT = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 
 app.use(cors());
-f
+
 app.get("/", function (req, res) {
     res.send("OK ; ds;dasd");
 });
 
-server.listen(PORT,function(){
-    console.log("Running att http://localhost:"+PORT)
+server.listen(PORT,IP, function(){
+    console.log("Listening at http://" + IP + ":" + PORT);
 });
 
 io.on('connection', function (socket) {
