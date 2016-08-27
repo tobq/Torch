@@ -89,14 +89,14 @@
         }
         requestAnimationFrame(draw);
     })();
+    $( window ).unload(function() {
+        socket.disconnect()
+    });
     socket.on("u", function (u) {
         players[u.id] = {x: u.x, y: u.y}
     })
     socket.on('d', function (id) {
         delete players[id];
-    });
-    $( window ).unload(function() {
-        socket.disconnect()
     });
 </script>
 </body>
