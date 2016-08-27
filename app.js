@@ -13,7 +13,7 @@ app.get("/", function (req, res) {
     res.sendFile(__dirname+"/index.html");
 });
 
-server.listen(PORT,IP, function(){
+server.listen(PORT,function(){
     console.log("Listening at http://" + IP + ":" + PORT);
 });
 
