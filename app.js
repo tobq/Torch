@@ -5,7 +5,7 @@ var express = require('express'),
     cors = require("cors"),
     IP = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',
     PORT =  process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080 || 1,
-    playerSpeed = 1;
+    playerSpeed = 0.1;
 
 app.use(cors());
 
