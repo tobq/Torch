@@ -89,7 +89,7 @@
         }
         requestAnimationFrame(draw);
     })();
-    $( window ).unload(function() {
+    $(window).on('beforeunload',function() {
         socket.disconnect()
     });
     socket.on("u", function (u) {
