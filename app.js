@@ -32,11 +32,11 @@ io.on('connection', function (socket) {
     socket.on('i', function (i) {
         angle = i.a;
         Speed = Math.min(Math.max(i.d*5-0.075,0),playerSpeed);
-        console.log(Speed)
     });
     socket.once('disconnect', function () {
         clearInterval(update);
         io.emit("d", socket.id);
+        console.log('> Connection closed');
     });
 
 });
