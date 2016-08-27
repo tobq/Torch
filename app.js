@@ -9,7 +9,7 @@ var express = require('express'),
 app.use(cors());
 
 app.get("/", function (req, res) {
-    res.send("OK ; ds;dasd");
+    res.sendFile(__dirname+"/index.html");
 });
 
 server.listen(PORT,IP, function(){
