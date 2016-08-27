@@ -9,7 +9,7 @@ var express = require('express'),
 
 app.use(cors());
 
-app.get("/loaderio-82460052bc3ad49a85c4c011eb14158d.txt",function(){
+app.get("/loaderio-82460052bc3ad49a85c4c011eb14158d.txt",function(req,res){
     res.sendfile(__dirname+"/loaderio-82460052bc3ad49a85c4c011eb14158d.txt")
 }) //////////////////////////////////////////////////////
 
