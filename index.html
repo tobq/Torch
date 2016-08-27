@@ -49,20 +49,14 @@
             ctx = canvas.getContext("2d"),
             socket = io(),
             players = {},
-            sizes = {};
+            sizes = {},
+            back = new Image();
 
     sizes.border = 50;
+    sizes.back = 1000;
+    sizes.ball = sizes.back/100;
+    back.src = "http://images.clipartpanda.com/square-clip-art-pb_sq_40690_md.gif";
 
-    function setCanvas() {
-        sizes.canvas = Math.min($(document).width(), $(document).height());
-        sizes.ball = 20;
-        sizes.toFit = (sizes.canvas * sizes.canvas) / (sizes.canvas + sizes.border);
-        sizes.correct = (sizes.canvas * sizes.border) / ((sizes.canvas + sizes.border) * 2) - (sizes.ball / 2);
-        canvas.width = sizes.canvas;
-        canvas.height = sizes.canvas;
-
-    }
-    setCanvas();
     $(window).resize(setCanvas);
     $(document).mousemove(function (e) {
         if (Date.now() - last > 100) {
@@ -70,9 +64,28 @@
             last = Date.now();
         }
     });
+    function setCanvas() {
+        canvas.width = $(document).width();
+        canvas.height = $(document).height();
+    }
+    setCanvas();
     (function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var id in players) ctx.fillRect(players[id].x * sizes.toFit + sizes.correct, players[id].y * sizes.toFit + sizes.correct, sizes.ball, sizes.ball);
+        var base;
+        if (base = players["/#"+socket.id]) {
+            delete players["/#"+socket.id];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(back,canvas.width/2-(sizes.back*base.x),canvas.height/2-(sizes.back*base.y),sizes.back,sizes.back);
+            ctx.beginPath();
+            ctx.arc(canvas.width/2,canvas.height/2,sizes.ball,0,2*Math.PI);
+            ctx.fill();
+            ctx.stroke();
+            for (var id in players) {
+                ctx.beginPath();
+                ctx.arc(canvas.width/2-(sizes.back*(base.x+players[id].x)),canvas.height/2-(sizes.back**(base.y+players[id].y)),sizes.ball,0,2*Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
         requestAnimationFrame(draw);
     })();
     socket.on("u", function (u) {
