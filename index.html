@@ -133,7 +133,7 @@
             ctx.lineTo((sizes.ball*5) / 2, -sizes.toEnd);
             ctx.closePath();
             view = ctx.createLinearGradient(0, 0, 0, -(sizes.toEnd * players[id].s * 2));
-            view.addColorStop(0.8, "#FFF");
+            view.addColorStop(0.5, "#FFF");
             view.addColorStop(1, "rgba(255,255,255,0)");
             ctx.fillStyle = view;
             ctx.fill();
