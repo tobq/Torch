@@ -131,7 +131,7 @@
                 ctx.fillStyle = "#999";
                 ctx.rotate(-(players[id].a + (Math.PI / 2)));
                 ctx.translate(0,5);
-                ctx.fillText(players[id].n.substr(0,1),0,0,20);
+                ctx.fillText(players[id].n.substr(0,1).toUpperCase(),0,0,20);
                 ctx.restore();
         }
         requestAnimationFrame(draw);
