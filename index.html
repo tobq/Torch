@@ -103,6 +103,10 @@
                 last = Date.now();
             }
         });
+        $("[name='name']").val("");
+        setTimeout(function(){
+            $("form").css("z-index",-1);
+        },300)
         e.preventDefault();
         return false;
     })
