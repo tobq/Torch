@@ -25,7 +25,7 @@ io.on('connection', function (socket) {
             x = Math.min(Math.max((Math.cos(angle)/(10/Speed)) + x, 0), 1);
             y = Math.min(Math.max((Math.sin(angle)/(10/Speed)) + y, 0), 1);
             io.emit("u", {id: socket.id, x: x, y: y,a: angle});
-        }, 100);
+        }, 20);
 
     console.log('> New connection: '+socket.id);
     socket.on('i', function (i) {
