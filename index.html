@@ -26,8 +26,7 @@
             right: 0px;
             left: 0px;
         }
-
-        form {
+        #home {
             width: 100%;
             height: 100%;
             z-index: 2;
@@ -41,8 +40,9 @@
             width: 300px;
             max-width: calc(100% - 80px);
             height: 40px;
-            background: #FFF;
+            background: #DDD;
             border-bottom: 3px solid #AAA;
+            border-radius: 3px;
             position: absolute;
             bottom: 0px;
             top: 0px;
@@ -50,15 +50,44 @@
             right: 0px;
             margin: auto;
             padding: 0px 20px;
+            transition: all 0.3s ease;
+        }
+        [name="name"]:hover,[name="name"]:focus {
+            background: #FFF;
+            border-bottom-color: #888;
+        }
+        #fpsc {
+            background: rgba(0,0,0,0.3);
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: rgba(255,255,255,0.7);
+            opacity: 0;
+            font-family: Roboto, Roboto-Regular, Arial;
+            transition: opacity 0.3s ease;
+        }
+        #fpsc > * {
+            display: inline-block;
+            padding: 6px 10px;
+        }
+        #fpsc > label {
+            background: rgba(0,0,0,0.3);
         }
     </style>
 </head>
 
 <body>
 <canvas id="map" width="100" height="100"></canvas>
-<form>
-    <input name="name" placeholder="Wocher name"/>
-</form>
+<div id="home">
+    <form>
+        <input name="name" placeholder="Wocher name"/>
+    </form>
+</div>
+<div id="fpsc">
+    <label for="fps">FPS</label>
+    <div id="fps">0</div>
+</div>
 <script src="/socket.io/socket.io.js"></script>
 <script>
     if (!window.requestAnimationFrame) {
@@ -73,14 +102,17 @@
     var canvas = $("#map")[0],
             ctx = canvas.getContext("2d"),
             last = 0,
+            lastFrame = 0,
+            lastShow = 0,
             players = {},
             socket = io(),
             sizes = {
                 back: 10000,
-                ball: 20
+                ball: 20,
+                glow: 0
             },
             back = new Image(),
-            view = ctx.createLinearGradient(0, 0, 0, 0);
+            view = "#FFF";
 
     back.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Graph-paper.svg/1000px-Graph-paper.svg.png";
 
@@ -96,8 +128,11 @@
     }
 
     $("form").on("submit", function (e) {
-        socket.emit("join", {usr: $("[name='name']").val()});
-        $(this).css("opacity", 0);
+        var name = $("[name='name']"),
+            home = $("#home");
+        socket.emit("join", {usr: name.val()});
+        home.css("opacity", 0);
+        $("#fpsc").css("opacity", 1);
         $(document).mousemove(function (e) {
             if (Date.now() - last > 20) {
                 var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)),
@@ -106,9 +141,9 @@
                 last = Date.now();
             }
         });
-        $("[name='name']").val("");
+        name.val("");
         setTimeout(function () {
-            $("form").css("z-index", -1);
+            home.css("z-index", -1);
         }, 300)
         e.preventDefault();
         return false;
@@ -119,30 +154,39 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(back, canvas.width / 2 - (sizes.back * base.x), canvas.height / 2 - (sizes.back * base.y), sizes.back, sizes.back);
         for (var id in players) {
-            ctx.save();
             ctx.translate((canvas.width / 2) - (sizes.back * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back * (base.y - players[id].y)));
-            ctx.rotate(players[id].a + (Math.PI / 2));
+            ctx.save();
+            ctx.rotate(players[id].a + (Math.PI * 3 / 2));
             ctx.beginPath();
-            ctx.arc(0, 0, sizes.ball, 0, 2 * Math.PI);
+            ctx.arc(0,0,sizes.ball,Math.PI,0);
+            ctx.lineTo((sizes.ball*10) / 2, sizes.toEnd);
+            ctx.lineTo(-(sizes.ball*10) / 2, sizes.toEnd);
             ctx.closePath();
-            ctx.fillStyle = "#FFF";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, 0, sizes.ball, 0, Math.PI);
-            ctx.lineTo(-(sizes.ball*5) / 2, -sizes.toEnd);
-            ctx.lineTo((sizes.ball*5) / 2, -sizes.toEnd);
-            ctx.closePath();
-            view = ctx.createLinearGradient(0, 0, 0, -(sizes.toEnd * players[id].s * 2));
-            view.addColorStop(0.5, "#FFF");
+            view = ctx.createRadialGradient(0,0,sizes.ball,0,0,Math.max(sizes.toEnd*2*players[id].s,sizes.ball));
+            view.addColorStop(0.5, "rgba(255,255,255,0.8)");
             view.addColorStop(1, "rgba(255,255,255,0)");
             ctx.fillStyle = view;
             ctx.fill();
-            ctx.fillStyle = "#BBB";
-            ctx.rotate(-(players[id].a + (Math.PI / 2)));
-            ctx.translate(0, sizes.ball/4);
-            ctx.fillText(players[id].n.substr(0, 1).toUpperCase(), 0, 0, 20);
             ctx.restore();
+            ctx.translate((sizes.back * (base.x - players[id].x)) - (canvas.width / 2),(sizes.back * (base.y - players[id].y)) - (canvas.height / 2));
+
         }
+        for (var id in players) {
+            ctx.translate((canvas.width / 2) - (sizes.back * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back * (base.y - players[id].y)));
+            ctx.fillStyle = "#FFF";
+            ctx.beginPath();
+            ctx.arc(0, 0, sizes.ball+sizes.glow, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#AAA";
+            ctx.fillText(players[id].n.substr(0, 1).toUpperCase(),0, sizes.ball/4, 20);
+            ctx.translate((sizes.back * (base.x - players[id].x)) - (canvas.width / 2),(sizes.back * (base.y - players[id].y)) - (canvas.height / 2));
+        }
+        if (Date.now() - lastShow >= 500) {
+            $("#fps").html(Math.round(1000/(Date.now()-lastFrame)));
+            lastShow = Date.now();
+        }
+        lastFrame=Date.now();
         requestAnimationFrame(draw);
     })();
 
@@ -155,6 +199,12 @@
     socket.on('d', function (id) {
         delete players[id];
     });
+    //TODO: give only users in range ... so server doesn't DDOS user...
+    //TODO: leaderboard ??
+    //TODO: canvas drawn grid instead of image
+    //            var glow = ctx.createRadialGradient(0,0,sizes.ball,0,0,sizes.ball+sizes.glow);
+    //            glow.addColorStop(0,"#999");
+    //            glow.addColorStop(1,"rgba(0,0,0,0)");
 </script>
 </body>
 </html>

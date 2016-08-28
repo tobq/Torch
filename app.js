@@ -55,7 +55,6 @@ io.on('connection', function (socket) {
     socket.on('i', function (i) {
         user.Angle = i.a;
         user.Speed = Math.min(Math.max((i.d-25)/400,0),playerSpeed);
-        console.log(user.Speed);
     });
     socket.once('disconnect', function () {
         kill(user);
