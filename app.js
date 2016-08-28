@@ -13,7 +13,7 @@ app.get("*", function (req, res) {
 });
 
 server.listen(PORT,function(){
-    console.log("Listening at http://" + IP + ":" + PORT);
+    console.log("Listening at http://:" + PORT);
 });
 
 io.on('connection', function (socket) {
