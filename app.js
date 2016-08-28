@@ -4,7 +4,7 @@ var express = require('express'),
     io = require("socket.io").listen(server),
     cors = require("cors"),
     PORT =  process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    playerSpeed = 3;
+    playerSpeed = 1;
 
 app.use(cors());
 
@@ -13,28 +13,51 @@ app.get("*", function (req, res) {
 });
 
 server.listen(PORT,function(){
-    console.log("Listening at http://:" + PORT);
+    console.log("Listening at http://127.0.0.1:" + PORT);
 });
 
-io.on('connection', function (socket) {
-    var angle = 0,
-        Speed = 0,
-        x = Math.random(),
-        y = Math.random(),
-        update = setInterval(function () {
-            x = Math.min(Math.max((Math.cos(angle)/(1000/Speed)) + x, 0), 1);
-            y = Math.min(Math.max((Math.sin(angle)/(1000/Speed)) + y, 0), 1);
-            io.emit("u", {id: socket.id, x: x, y: y,a: angle});
-        }, 20);
+function kill(User) {
+    clearInterval(User.update);
+    User = {id:User.id};
+    io.emit("d", User.id);
+}
 
+io.on('connection', function (socket) {
     console.log('> New connection: '+socket.id);
+    var user = {id:socket.id};
+
+    socket.on("join",function(usr) {
+        if (!(Object.keys(user).length-1)) {
+            user.Angle = 0;
+            user.Speed = 0;
+            user.name = usr.usr;
+            user.x = Math.random();
+            user.y = Math.random();
+            user.update = setInterval(function (user) {
+                user.x = Math.min(Math.max((Math.cos(user.Angle) / (1000 / user.Speed)) + user.x, 0), 1);
+                user.y = Math.min(Math.max((Math.sin(user.Angle) / (1000 / user.Speed)) + user.y, 0), 1);
+                io.emit("u", {
+                    id: user.id,
+                    x: user.x,
+                    y: user.y,
+                    a: user.Angle,
+                    s: user.Speed,
+                    n: user.name
+                });
+            }, 20,user);
+        }
+    })
+
+    socket.on("leave",function() {
+        kill(user);
+    })
+
     socket.on('i', function (i) {
-        angle = i.a;
-        Speed = Math.min(Math.max((i.d-25)/35,0),playerSpeed);
+        user.Angle = i.a;
+        user.Speed = Math.min(Math.max((i.d-25)/35,0),playerSpeed);
     });
     socket.once('disconnect', function () {
-        clearInterval(update);
-        io.emit("d", socket.id);
+        kill(user);
         console.log('> Connection closed: '+socket.id);
     });
 
