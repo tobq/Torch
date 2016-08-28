@@ -90,7 +90,7 @@
         canvas.width = $(document).width();
         canvas.height = $(document).height();
         sizes.toEnd = Math.max($(document).height(), $(document).width());
-        sizes.ball = Math.mins($(document).height(), $(document).width())/30;
+        sizes.ball = Math.min($(document).height(), $(document).width())/30;
         ctx.font = 'bold '+sizes.ball*0.6+'px Arial';
         ctx.textAlign = 'center';
     }
