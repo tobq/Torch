@@ -4,7 +4,7 @@ var express = require('express'),
     io = require("socket.io").listen(server),
     cors = require("cors"),
     PORT =  process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    playerSpeed = 3;
+    playerSpeed = 0.03;
 
 app.use(cors());
 
