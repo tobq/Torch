@@ -77,7 +77,7 @@
             socket = io(),
             sizes = {
                 back: 10000,
-                ball: 50
+                ball: 20
             },
             back = new Image(),
             view = ctx.createLinearGradient(0, 0, 0, 0);
@@ -90,6 +90,7 @@
         canvas.width = $(document).width();
         canvas.height = $(document).height();
         sizes.toEnd = Math.max($(document).height(), $(document).width());
+        sizes.ball = sizes.toEnd/30;
         ctx.font = 'bold '+sizes.ball*0.7+'px Arial';
         ctx.textAlign = 'center';
     }
