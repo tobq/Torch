@@ -4,7 +4,7 @@ var express = require('express'),
     io = require("socket.io").listen(server),
     cors = require("cors"),
     PORT =  process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    playerSpeed = 1;
+    playerSpeed = 0.5;
 
 app.use(cors());
 
@@ -54,7 +54,8 @@ io.on('connection', function (socket) {
 
     socket.on('i', function (i) {
         user.Angle = i.a;
-        user.Speed = Math.min(Math.max((i.d-25)/35,0),playerSpeed);
+        user.Speed = Math.min(Math.max((i.d-25)/400,0),playerSpeed);
+        console.log(user.Speed);
     });
     socket.once('disconnect', function () {
         kill(user);
