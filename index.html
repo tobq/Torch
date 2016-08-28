@@ -77,7 +77,7 @@
             socket = io(),
             sizes = {
                 back: 10000,
-                ball: 20
+                ball: 50
             },
             back = new Image(),
             view = ctx.createLinearGradient(0, 0, 0, 0);
@@ -90,7 +90,7 @@
         canvas.width = $(document).width();
         canvas.height = $(document).height();
         sizes.toEnd = Math.max($(document).height(), $(document).width());
-        ctx.font = 'bold 15px Arial';
+        ctx.font = 'bold '+sizes.ball*0.7+'px Arial';
         ctx.textAlign = 'center';
     }
 
@@ -128,17 +128,17 @@
             ctx.fill();
             ctx.beginPath();
             ctx.arc(0, 0, sizes.ball, 0, Math.PI);
-            ctx.lineTo(-(sizes.ball + 60) / 2, -sizes.toEnd);
-            ctx.lineTo((sizes.ball + 60) / 2, -sizes.toEnd);
+            ctx.lineTo(-(sizes.ball*5) / 2, -sizes.toEnd);
+            ctx.lineTo((sizes.ball*5) / 2, -sizes.toEnd);
             ctx.closePath();
             view = ctx.createLinearGradient(0, 0, 0, -(sizes.toEnd * players[id].s * 2));
             view.addColorStop(0.8, "#FFF");
             view.addColorStop(1, "rgba(255,255,255,0)");
             ctx.fillStyle = view;
             ctx.fill();
-            ctx.fillStyle = "#999";
+            ctx.fillStyle = "#BBB";
             ctx.rotate(-(players[id].a + (Math.PI / 2)));
-            ctx.translate(0, 5);
+            ctx.translate(0, sizes.ball/4);
             ctx.fillText(players[id].n.substr(0, 1).toUpperCase(), 0, 0, 20);
             ctx.restore();
         }
