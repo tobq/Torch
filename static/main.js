@@ -30,7 +30,7 @@ var canvas = $("#map")[0],
     },
     sizes = {
         back: {
-            size: 10000,
+            size: 20000,
             spacing: 200,
             dotsize: 4
         },
@@ -102,7 +102,7 @@ setCanvas();
         ctx.lineTo(-(sizes.ball * 15) / 2, sizes.toEnd);
         ctx.closePath();
         view = ctx.createRadialGradient(0, 0, sizes.ball, 0, 0, Math.max(sizes.toEnd * 2 * players[id].Speed, sizes.ball));
-        view.addColorStop(0.3, "rgba(255,255,255,0.6)");
+        view.addColorStop(0.3, "rgba(255,255,255,0.7)");
         view.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = view;
         ctx.fill();
