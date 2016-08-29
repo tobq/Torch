@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Watch</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="/main.css"/>
+</head>
+
+<body>
+<canvas id="map" width="100" height="100"></canvas>
+<div id="home">
+    <form>
+        <input name="name" placeholder="Wocher name" maxlength="20"/>
+    </form>
+</div>
+<div id="overlays">
+    <div id="boardc">
+        <label for="top10">Leaders</label>
+        <div id="top10">
+        </div>
+    </div>
+    <div id="fpsc">
+        <label for="fps">FPS</label>
+        <div id="fps">0</div>
+    </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/main.js"></script>
+</body>
+</html>

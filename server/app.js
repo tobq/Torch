@@ -11,7 +11,7 @@ var express = require('express'),
         }
     };
 
-setInterval(function(){
+setInterval(function () {
     for (var game in games) {
         for (var player in games[game].players) {
             player = games[game].players[player];
@@ -23,22 +23,19 @@ setInterval(function(){
     }
 }, 20);
 
-setInterval(function(){
+setInterval(function () {
     for (var game in games) {
         var board = [];
-        for ( var player in games[game].players) board.push(games[game].players[player]);
-        board = board.sort(function(a, b) {
+        for (var player in games[game].players) board.push(games[game].players[player]);
+        board = board.sort(function (a, b) {
             return b.Score - a.Score;
-        }).slice(0,5);
-        io.to(game).emit("b",board);
+        }).slice(0, 5);
+        io.to(game).emit("b", board);
     }
-},2000)
+}, 2000)
 
 app.use(cors());
-
-app.get("*", function (req, res) {
-    res.sendFile(__dirname + "/index.html");
-});
+app.use(express.static(__dirname + '/../static'));
 
 server.listen(PORT, function () {
     console.log("Listening at http://127.0.0.1:" + PORT);
@@ -54,7 +51,7 @@ io.on('connection', function (socket) {
             user.Angle = 0;
             user.Speed = 0;
             user.Score = 0;
-            user.Name = usr.usr.substr(0,20);
+            user.Name = usr.usr.substr(0, 20);
             user.x = Math.random();
             user.y = Math.random();
         }
