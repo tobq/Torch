@@ -54,7 +54,7 @@ io.on('connection', function (socket) {
             user.Angle = 0;
             user.Speed = 0;
             user.Score = 0;
-            user.Name = usr.usr;
+            user.Name = usr.usr.substr(0,20);
             user.x = Math.random();
             user.y = Math.random();
         }
