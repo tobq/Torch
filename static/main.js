@@ -38,7 +38,7 @@ var canvas = $("#map")[0],
         glow: 0,
 
     },
-    last = 0,
+    lastM = 0,
     players = {},
     back = new Image(),
     view = "#FFF";
@@ -48,7 +48,6 @@ back.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Graph-pape
 function setCanvas() {
     canvas.width = $(document).width();
     canvas.height = $(document).height();
-    sizes.toEnd = Math.max($(document).height(), $(document).width());
     ctx.font = "bold " + (sizes.ball * 0.6) + "px Rubik";
     ctx.textAlign = 'center';
 }
@@ -62,11 +61,11 @@ $("form").submit(function (e) {
     FPS.calcFPS = true;
     $(".overlays").css("opacity", 1);
     document.onmousemove = function (e) {
-        if (Date.now() - last > 20) {
+        if (Date.now() - lastM > 20) {
             var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)),
                 angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
             socket.emit("i", {a: angle, d: distance});
-            last = Date.now();
+            lastM = Date.now();
         }
     };
     name.val("");
@@ -102,10 +101,10 @@ $("form").submit(function (e) {
         ctx.rotate(players[id].Angle + (Math.PI * 3 / 2));
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball, Math.PI, 0);
-        ctx.lineTo((sizes.ball * 15) / 2, sizes.toEnd);
-        ctx.lineTo(-(sizes.ball * 15) / 2, sizes.toEnd);
+        ctx.lineTo((sizes.ball * 15) / 2, players[id].Beam);
+        ctx.lineTo(-(sizes.ball * 15) / 2, players[id].Beam);
         ctx.closePath();
-        view = ctx.createRadialGradient(0, 0, sizes.ball, 0, 0, Math.max(sizes.toEnd * 2 * players[id].Speed, sizes.ball));
+        view = ctx.createRadialGradient(0, 0, sizes.ball, 0, 0, Math.max(players[id].Beam * 2 * players[id].Speed, sizes.ball));
         view.addColorStop(0.3, "rgba(255,255,255,0.7)");
         view.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = view;
