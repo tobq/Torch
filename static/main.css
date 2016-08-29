@@ -207,7 +207,7 @@ section.settings > .op:hover {
     background: rgba(0, 0, 0, 0.3);
     height: 2px;
     margin: 10px;
-    display: inline-block;
+    display: block;
 }
 
 section.settings .hr {
@@ -217,12 +217,21 @@ section.settings .hr {
 #si {
     height: 0px;
 }
+
 #si > span {
-    text-align: left;
-    text-indent: 20px;
-    display: block;
-    width: 100%;
-    margin: 2px 0px;
+    display: inline-block;
+    line-height: 40px;
+    width: calc(50% - 1px);
+    float: left;
+}
+
+#vr {
+    width: 2px;
+    margin: 10px 0px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    display: inline-block;
+    float: left;
 }
 
 @media (max-width: 400px) {
