@@ -60,10 +60,13 @@
             position: fixed;
             font-size: 20px;
             color: rgba(255, 255, 255, 0.7);
-            border-radius: 6px;
+            border-radius: 4px;
             overflow: hidden;
             opacity: 0;
             transition: opacity 0.3s ease;
+        }
+        #overlays > div > label {
+            background: rgba(0,0,0,0.2);
         }
         #boardc {
             left: 10px;
@@ -83,16 +86,12 @@
         label[for="top10"] {
             width: 100%;
             padding: 8px;
-            background: rgba(0,0,0,0.5);
             display: inline-block;
             margin-bottom: 4px;
             text-align: center;
         }
         #fps {
             padding-left: 3px !important;
-        }
-        label[for="fps"] {
-            background: rgba(0, 0, 0, 0.3);
         }
         #top10 > span {
             display: block;
