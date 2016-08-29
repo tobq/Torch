@@ -216,6 +216,7 @@ section.settings .hr {
 
 #si {
     height: 0px;
+    overflow: hidden;
 }
 
 #si > span {
