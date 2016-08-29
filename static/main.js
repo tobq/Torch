@@ -29,9 +29,14 @@ var canvas = $("#map")[0],
         calcFPS: false
     },
     sizes = {
-        back: 10000,
-        ball: 20,
-        glow: 0
+        back: {
+            size: 10000,
+            spacing: 200,
+            dotsize: 4
+        },
+        ball: 30,
+        glow: 0,
+
     },
     last = 0,
     players = {},
@@ -46,7 +51,6 @@ function setCanvas() {
     canvas.width = $(document).width();
     canvas.height = $(document).height();
     sizes.toEnd = Math.max($(document).height(), $(document).width());
-    sizes.ball = Math.min($(document).height(), $(document).width()) / 30;
     ctx.font = 'bold ' + sizes.ball * 0.6 + 'px Arial';
     ctx.textAlign = 'center';
 }
@@ -76,29 +80,38 @@ $("form").on("submit", function (e) {
 setCanvas();
 (function draw() {
     var base = players["/#" + socket.id] ? players["/#" + socket.id] : {x: 0.5, y: 0.5},
+        offs = [(canvas.width / 2 - (sizes.back.size * base.x))%sizes.back.spacing, (canvas.height / 2 - (sizes.back.size * base.y))%sizes.back.spacing],
         delta;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(back, canvas.width / 2 - (sizes.back * base.x), canvas.height / 2 - (sizes.back * base.y), sizes.back, sizes.back);
+    ctx.fillStyle = "#112632";
+    for (var xc=-sizes.back.spacing; xc < canvas.width+sizes.back.spacing; xc+=sizes.back.spacing) {
+        for (var yc=-sizes.back.spacing; yc < canvas.height+sizes.back.spacing; yc+=sizes.back.spacing){
+            ctx.beginPath();
+            ctx.arc(xc+offs[0],yc+offs[1],sizes.back.dotsize,0,2*Math.PI);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
     for (var id in players) {
-        ctx.translate((canvas.width / 2) - (sizes.back * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back * (base.y - players[id].y)));
+        ctx.translate((canvas.width / 2) - (sizes.back.size * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back.size * (base.y - players[id].y)));
         ctx.save();
         ctx.rotate(players[id].Angle + (Math.PI * 3 / 2));
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball, Math.PI, 0);
-        ctx.lineTo((sizes.ball * 10) / 2, sizes.toEnd);
-        ctx.lineTo(-(sizes.ball * 10) / 2, sizes.toEnd);
+        ctx.lineTo((sizes.ball * 15) / 2, sizes.toEnd);
+        ctx.lineTo(-(sizes.ball * 15) / 2, sizes.toEnd);
         ctx.closePath();
         view = ctx.createRadialGradient(0, 0, sizes.ball, 0, 0, Math.max(sizes.toEnd * 2 * players[id].Speed, sizes.ball));
-        view.addColorStop(0.5, "rgba(255,255,255,0.8)");
+        view.addColorStop(0.3, "rgba(255,255,255,0.6)");
         view.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = view;
         ctx.fill();
         ctx.restore();
-        ctx.translate((sizes.back * (base.x - players[id].x)) - (canvas.width / 2), (sizes.back * (base.y - players[id].y)) - (canvas.height / 2));
+        ctx.translate((sizes.back.size * (base.x - players[id].x)) - (canvas.width / 2), (sizes.back.size * (base.y - players[id].y)) - (canvas.height / 2));
 
     }
     for (var id in players) {
-        ctx.translate((canvas.width / 2) - (sizes.back * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back * (base.y - players[id].y)));
+        ctx.translate((canvas.width / 2) - (sizes.back.size * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back.size * (base.y - players[id].y)));
         ctx.fillStyle = "#FFF";
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball + sizes.glow, 0, 2 * Math.PI);
@@ -106,7 +119,7 @@ setCanvas();
         ctx.fill();
         ctx.fillStyle = "#AAA";
         ctx.fillText(players[id].Name.substr(0, 1).toUpperCase(), 0, sizes.ball / 4, 20);
-        ctx.translate((sizes.back * (base.x - players[id].x)) - (canvas.width / 2), (sizes.back * (base.y - players[id].y)) - (canvas.height / 2));
+        ctx.translate((sizes.back.size * (base.x - players[id].x)) - (canvas.width / 2), (sizes.back.size * (base.y - players[id].y)) - (canvas.height / 2));
     }
     if (FPS.calcFPS && (delta = Date.now() - FPS.lastCount) >= 500) {
         $("#fps").html(Math.round(FPS.framesShown*1000/delta));
@@ -121,7 +134,7 @@ window.onbeforeunload = function () {
 };
 socket.on("u", function (u) {
     players = u;
-})
+});
 socket.on("b", function (b) {
     var top = $("#top10").html("");
     for (var i = 0; i < b.length; ++i) {
@@ -129,9 +142,8 @@ socket.on("b", function (b) {
         user.innerHTML = (i + 1) + " " + escapeHTML(b[i].Name);
         top.append(user);
     }
-})
+});
 //TODO: give only users in range ... so server doesn't DDOS user...
-//TODO: canvas drawn grid instead of image
 //            var glow = ctx.createRadialGradient(0,0,sizes.ball,0,0,sizes.ball+sizes.glow);
 //            glow.addColorStop(0,"#999");
 //            glow.addColorStop(1,"rgba(0,0,0,0)");
