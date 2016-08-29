@@ -10,17 +10,29 @@
 <body>
 <canvas id="map" width="100" height="100"></canvas>
 <div id="home">
+    <div id="con">
     <form>
         <input name="name" placeholder="Wocher name" maxlength="20"/>
     </form>
-</div>
-<div id="boardc" class="overlays">
-    <label for="top10">Leaders</label>
-    <div id="top10">
+        <button class="settings"></button>
+        <section class="settings">
+            <span class="op">Show FPS <div class="check fps"></div></span>
+            <div id="si">
+                <div id="hr"></div>
+                Server Information
+                <span id="siN"></span>
+                <span id="siR"></span>
+            </div>
+        </section>
     </div>
 </div>
-<div id="fpsc" class="overlays">
-    <label for="fps">FPS</label>
+<div id="boardc" class="overlays">
+    <label class="leaders">Leaders</label>
+    <div id="leaders">
+    </div>
+</div>
+<div id="fpsc">
+    <label class="fps">FPS</label>
     <div id="fps">~</div>
 </div>
 

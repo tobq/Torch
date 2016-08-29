@@ -5,8 +5,15 @@ var express = require('express'),
     cors = require("cors"),
     PORT = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     playerSpeed = 0.5,
+    ServerRegion = "Europe",
     games = {
         A: {
+            players: {}
+        },
+        B: {
+            players: {}
+        },
+        C: {
             players: {}
         }
     };
@@ -42,10 +49,11 @@ server.listen(PORT, function () {
 });
 
 io.on('connection', function (socket) {
-    var user = {};
+    var user = {},
+        game;
     socket.on("join", function (usr) {
-        var game = "A";
         if (!Object.keys(user).length) {
+            game = Object.keys(games)[Math.floor(Math.random() * Object.keys(games).length)];
             socket.join(game);
             games[game].players[socket.id] = user;
             user.Angle = 0;
@@ -55,6 +63,8 @@ io.on('connection', function (socket) {
             user.Name = usr.usr.substr(0, 20);
             user.x = Math.random();
             user.y = Math.random();
+            socket.emit("si", {region: ServerRegion, name: game});
+            console.log("> " + socket.id + " joined game: " + game + " - Name: " + user.Name);
         }
     })
     socket.on('i', function (i) {
@@ -62,11 +72,18 @@ io.on('connection', function (socket) {
         user.Speed = Math.min(Math.max((i.d - 25) / 400, 0), playerSpeed);
     });
 
-    socket.once('disconnect', function () {
-        delete games.A.players[socket.id];
-        console.log('> Connection closed: ' + socket.id);
+    socket.on('leave', function () {
+        delete games[game].players[socket.id];
+        socket.leave(game);
+        user = {};
+        console.log("> " + socket.id + " left game: " + game);
     });
-    console.log('> New connection: ' + socket.id);
+
+    socket.on('disconnect', function () {
+        if (games[game]) delete games[game].players[socket.id];
+        console.log('Connection closed: ' + socket.id);
+    });
+    console.log('New connection: ' + socket.id);
 });
 
 
