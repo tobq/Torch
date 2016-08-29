@@ -54,7 +54,7 @@ function setCanvas() {
 }
 (window.onresize = setCanvas)();
 
-$("form")[0].onsubmit = function (e) {
+$("form").submit(function (e) {
     var name = $("[name='name']"),
         home = $("#home");
     socket.emit("join", {usr: name.val()});
@@ -75,7 +75,7 @@ $("form")[0].onsubmit = function (e) {
     }, 300);
     e.preventDefault();
     return false;
-};
+});
 (function draw() {
     var base = players["/#" + socket.id] ? players["/#" + socket.id] : {x: 0.5, y: 0.5},
         delta,
