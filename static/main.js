@@ -21,16 +21,20 @@ function escapeHTML(text) {
 }
 var canvas = $("#map")[0],
     ctx = canvas.getContext("2d"),
-    last = 0,
-    lastFrame = 0,
-    lastShow = 0,
-    players = {},
     socket = io(),
+    FPS = {
+        lastShow: 0,
+        lastCount: 0,
+        framesShown: 0,
+        calcFPS: false
+    },
     sizes = {
         back: 10000,
         ball: 20,
         glow: 0
     },
+    last = 0,
+    players = {},
     back = new Image(),
     view = "#FFF";
 
@@ -52,15 +56,16 @@ $("form").on("submit", function (e) {
         home = $("#home");
     socket.emit("join", {usr: name.val()});
     home.css("opacity", 0);
+    FPS.calcFPS = true;
     $("#overlays > div").css("opacity", 1);
-    $(document).on("mousemove", function (e) {
+    document.onmousemove = function (e) {
         if (Date.now() - last > 20) {
             var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)),
                 angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
             socket.emit("i", {a: angle, d: distance});
             last = Date.now();
         }
-    });
+    };
     name.val("");
     setTimeout(function () {
         home.css("z-index", -1);
@@ -70,7 +75,8 @@ $("form").on("submit", function (e) {
 })
 setCanvas();
 (function draw() {
-    var base = players["/#" + socket.id] ? players["/#" + socket.id] : {x: 0.5, y: 0.5};
+    var base = players["/#" + socket.id] ? players["/#" + socket.id] : {x: 0.5, y: 0.5},
+        delta;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(back, canvas.width / 2 - (sizes.back * base.x), canvas.height / 2 - (sizes.back * base.y), sizes.back, sizes.back);
     for (var id in players) {
@@ -102,16 +108,17 @@ setCanvas();
         ctx.fillText(players[id].Name.substr(0, 1).toUpperCase(), 0, sizes.ball / 4, 20);
         ctx.translate((sizes.back * (base.x - players[id].x)) - (canvas.width / 2), (sizes.back * (base.y - players[id].y)) - (canvas.height / 2));
     }
-    if (Date.now() - lastShow >= 500) {
-        $("#fps").html(Math.round(1000 / (Date.now() - lastFrame)));
-        lastShow = Date.now();
+    if (FPS.calcFPS && (delta = Date.now() - FPS.lastCount) >= 500) {
+        $("#fps").html(Math.round(FPS.framesShown*1000/delta));
+        FPS.lastCount = Date.now();
+        FPS.framesShown = 0;
     }
-    lastFrame = Date.now();
+    FPS.framesShown++;
     requestAnimationFrame(draw);
 })();
-$(window).on('beforeunload', function () {
+window.onbeforeunload = function () {
     socket.disconnect();
-});
+};
 socket.on("u", function (u) {
     players = u;
 })
@@ -124,7 +131,6 @@ socket.on("b", function (b) {
     }
 })
 //TODO: give only users in range ... so server doesn't DDOS user...
-//TODO: leaderboard ??
 //TODO: canvas drawn grid instead of image
 //            var glow = ctx.createRadialGradient(0,0,sizes.ball,0,0,sizes.ball+sizes.glow);
 //            glow.addColorStop(0,"#999");
