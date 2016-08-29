@@ -10,6 +10,7 @@
             border: 0px;
             padding: 0px;
             outline: none;
+            font-family: Roboto, Roboto-Regular, Arial;
         }
 
         body, html {
@@ -36,7 +37,7 @@
             transition: opacity 0.3s ease;
         }
 
-        [name="name"] {
+        input[name="name"] {
             width: 300px;
             max-width: calc(100% - 80px);
             height: 40px;
@@ -52,7 +53,7 @@
             padding: 0px 20px;
             transition: all 0.3s ease;
         }
-        [name="name"]:hover,[name="name"]:focus {
+        input[name="name"]:hover,input[name="name"]:focus {
             background: #FFF;
             border-bottom-color: #888;
         }
@@ -64,7 +65,6 @@
             font-size: 20px;
             color: rgba(255,255,255,0.7);
             opacity: 0;
-            font-family: Roboto, Roboto-Regular, Arial;
             transition: opacity 0.3s ease;
         }
         #fpsc > * {
@@ -73,6 +73,25 @@
         }
         #fpsc > label {
             background: rgba(0,0,0,0.3);
+        }
+        #boardc {
+            background: rgba(0,0,0,0.3);
+            width: 200px;
+            max-width: 50%;
+            padding: 6px 12px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: rgba(255,255,255,0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        label[for="top10"] {
+            width: 100%;
+            display: inline-block;
+            margin-bottom: 3px;
+            text-align: center;
         }
     </style>
 </head>
@@ -83,6 +102,11 @@
     <form>
         <input name="name" placeholder="Wocher name"/>
     </form>
+</div>
+<div id="boardc">
+    <label for="top10">Leaders</label>
+    <div id="top10">
+    </div>
 </div>
 <div id="fpsc">
     <label for="fps">FPS</label>
@@ -132,8 +156,8 @@
             home = $("#home");
         socket.emit("join", {usr: name.val()});
         home.css("opacity", 0);
-        $("#fpsc").css("opacity", 1);
-        $(document).mousemove(function (e) {
+        $("#boardc, #fpsc").css("opacity", 1);
+        $(document).on("mousemove",function (e) {
             if (Date.now() - last > 20) {
                 var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)),
                         angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
@@ -156,13 +180,13 @@
         for (var id in players) {
             ctx.translate((canvas.width / 2) - (sizes.back * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back * (base.y - players[id].y)));
             ctx.save();
-            ctx.rotate(players[id].a + (Math.PI * 3 / 2));
+            ctx.rotate(players[id].Angle + (Math.PI * 3 / 2));
             ctx.beginPath();
             ctx.arc(0,0,sizes.ball,Math.PI,0);
             ctx.lineTo((sizes.ball*10) / 2, sizes.toEnd);
             ctx.lineTo(-(sizes.ball*10) / 2, sizes.toEnd);
             ctx.closePath();
-            view = ctx.createRadialGradient(0,0,sizes.ball,0,0,Math.max(sizes.toEnd*2*players[id].s,sizes.ball));
+            view = ctx.createRadialGradient(0,0,sizes.ball,0,0,Math.max(sizes.toEnd*2*players[id].Speed,sizes.ball));
             view.addColorStop(0.5, "rgba(255,255,255,0.8)");
             view.addColorStop(1, "rgba(255,255,255,0)");
             ctx.fillStyle = view;
@@ -179,7 +203,7 @@
             ctx.closePath();
             ctx.fill();
             ctx.fillStyle = "#AAA";
-            ctx.fillText(players[id].n.substr(0, 1).toUpperCase(),0, sizes.ball/4, 20);
+            ctx.fillText(players[id].Name.substr(0, 1).toUpperCase(),0, sizes.ball/4, 20);
             ctx.translate((sizes.back * (base.x - players[id].x)) - (canvas.width / 2),(sizes.back * (base.y - players[id].y)) - (canvas.height / 2));
         }
         if (Date.now() - lastShow >= 500) {
@@ -189,16 +213,20 @@
         lastFrame=Date.now();
         requestAnimationFrame(draw);
     })();
-
     $(window).on('beforeunload', function () {
         socket.disconnect();
     });
     socket.on("u", function (u) {
-        players[u.id] = {x: u.x, y: u.y, a: u.a, s: u.s, n: u.n}
+        players = u;
     })
-    socket.on('d', function (id) {
-        delete players[id];
-    });
+    socket.on("b", function (b) {
+        var top = $("#top10").html("");
+        for (var i = 0; i < b.length; ++i) {
+            var user = document.createElement("div");
+            user.innerHTML = (i+1)+" "+b[i].Name;
+            top.append(user);
+        }
+    })
     //TODO: give only users in range ... so server doesn't DDOS user...
     //TODO: leaderboard ??
     //TODO: canvas drawn grid instead of image
