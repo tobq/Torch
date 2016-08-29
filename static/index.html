@@ -14,17 +14,16 @@
         <input name="name" placeholder="Wocher name" maxlength="20"/>
     </form>
 </div>
-<div id="overlays">
-    <div id="boardc">
-        <label for="top10">Leaders</label>
-        <div id="top10">
-        </div>
-    </div>
-    <div id="fpsc">
-        <label for="fps">FPS</label>
-        <div id="fps">~</div>
+<div id="boardc" class="overlays">
+    <label for="top10">Leaders</label>
+    <div id="top10">
     </div>
 </div>
+<div id="fpsc" class="overlays">
+    <label for="fps">FPS</label>
+    <div id="fps">~</div>
+</div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="/main.js"></script>
 </body>

@@ -32,7 +32,7 @@ var canvas = $("#map")[0],
         back: {
             size: 20000,
             spacing: 200,
-            dotsize: 4
+            dotsize: 3
         },
         ball: 30,
         glow: 0,
@@ -45,23 +45,22 @@ var canvas = $("#map")[0],
 
 back.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Graph-paper.svg/1000px-Graph-paper.svg.png";
 
-$(window).resize(setCanvas);
-
 function setCanvas() {
     canvas.width = $(document).width();
     canvas.height = $(document).height();
     sizes.toEnd = Math.max($(document).height(), $(document).width());
-    ctx.font = 'bold ' + sizes.ball * 0.6 + 'px Arial';
+    ctx.font = "bold " + (sizes.ball * 0.6) + "px Rubik";
     ctx.textAlign = 'center';
 }
+(window.onresize = setCanvas)();
 
-$("form").on("submit", function (e) {
+$("form")[0].onsubmit = function (e) {
     var name = $("[name='name']"),
         home = $("#home");
     socket.emit("join", {usr: name.val()});
     home.css("opacity", 0);
     FPS.calcFPS = true;
-    $("#overlays > div").css("opacity", 1);
+    $(".overlays").css("opacity", 1);
     document.onmousemove = function (e) {
         if (Date.now() - last > 20) {
             var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)),
@@ -73,25 +72,30 @@ $("form").on("submit", function (e) {
     name.val("");
     setTimeout(function () {
         home.css("z-index", -1);
-    }, 300)
+    }, 300);
     e.preventDefault();
     return false;
-})
-setCanvas();
+};
 (function draw() {
     var base = players["/#" + socket.id] ? players["/#" + socket.id] : {x: 0.5, y: 0.5},
-        offs = [(canvas.width / 2 - (sizes.back.size * base.x))%sizes.back.spacing, (canvas.height / 2 - (sizes.back.size * base.y))%sizes.back.spacing],
-        delta;
+        delta,
+        backX = canvas.width / 2 - (sizes.back.size * base.x),
+        backY = canvas.height / 2 - (sizes.back.size * base.y),
+        offX = backX % sizes.back.spacing,
+        offY = backY % sizes.back.spacing;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#112632";
-    for (var xc=-sizes.back.spacing; xc < canvas.width+sizes.back.spacing; xc+=sizes.back.spacing) {
-        for (var yc=-sizes.back.spacing; yc < canvas.height+sizes.back.spacing; yc+=sizes.back.spacing){
+    for (var xc = -sizes.back.spacing; xc < canvas.width + sizes.back.spacing; xc += sizes.back.spacing) {
+        for (var yc = -sizes.back.spacing; yc < canvas.height + sizes.back.spacing; yc += sizes.back.spacing) {
             ctx.beginPath();
-            ctx.arc(xc+offs[0],yc+offs[1],sizes.back.dotsize,0,2*Math.PI);
+            ctx.arc(xc + offX, yc + offY, sizes.back.dotsize, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
         }
     }
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fillRect(backX, backY, sizes.back.size, sizes.back.size);
     for (var id in players) {
         ctx.translate((canvas.width / 2) - (sizes.back.size * (base.x - players[id].x)), (canvas.height / 2) - (sizes.back.size * (base.y - players[id].y)));
         ctx.save();
@@ -122,7 +126,7 @@ setCanvas();
         ctx.translate((sizes.back.size * (base.x - players[id].x)) - (canvas.width / 2), (sizes.back.size * (base.y - players[id].y)) - (canvas.height / 2));
     }
     if (FPS.calcFPS && (delta = Date.now() - FPS.lastCount) >= 500) {
-        $("#fps").html(Math.round(FPS.framesShown*1000/delta));
+        $("#fps").html(Math.round(FPS.framesShown * 1000 / delta));
         FPS.lastCount = Date.now();
         FPS.framesShown = 0;
     }
@@ -143,6 +147,7 @@ socket.on("b", function (b) {
         top.append(user);
     }
 });
+
 //TODO: give only users in range ... so server doesn't DDOS user...
 //            var glow = ctx.createRadialGradient(0,0,sizes.ball,0,0,sizes.ball+sizes.glow);
 //            glow.addColorStop(0,"#999");
