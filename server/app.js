@@ -20,7 +20,7 @@ var express = require('express'),
     })(),
     games = (function () {
         var Games = {},
-            games = ["A", "B", "C"];
+            games = ["A"];
         for (var i = 0; i < games.length; ++i) {
             Games[games[i]] = {
                 players: {}
