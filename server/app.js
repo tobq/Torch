@@ -98,7 +98,7 @@ setInterval(function () {
 app.use(cors());
 app.use(express.static(__dirname + '/../static'));
 
-server.listen(PORT,IP, function () {
+server.listen(PORT, function () {
     console.log("Listening at http://"+IP+":"+PORT);
 });
 
@@ -148,6 +148,3 @@ function copy(arr) {
             new_arr[i] = copy(new_arr[i]);
     return new_arr;
 }
-//
-//
-//
