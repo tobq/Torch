@@ -60,7 +60,7 @@ $(window).keydown(function (e) {
     } else if (e.which === 16) toggleFPS();
 });
 window.onwheel = function (e) {
-    sizes.scale = Math.max(Math.min(sizes.scale - (e.deltaY / 1500), 2), (players[socket.id] ? players[socket.id].Beam / 2000 : 0.5));
+    sizes.scale = Math.min(Math.max(sizes.scale - (e.deltaY / 1500), 300/(players["/#"+socket.id]?players["/#"+socket.id].Beam.length:500)),2);
     ctx.font = "bold " + Math.round(sizes.ball * 0.5 * sizes.scale) + "px Rubik";
 };
 
@@ -77,7 +77,7 @@ $("form").submit(function (e) {
     }).addClass("closed");
     document.onmousemove = function (e) {
         if (Date.now() - lastM > 20) {
-            var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)),
+            var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2))/sizes.scale,
                 angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
             socket.emit("i", {a: angle, d: distance});
             lastM = Date.now();
@@ -117,10 +117,9 @@ $("form").submit(function (e) {
         ctx.rotate(player.Angle + (Math.PI * 3 / 2));
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball * sizes.scale, Math.PI, 0);
-        ctx.lineTo((sizes.ball * sizes.scale * 15) / 2, player.Beam * sizes.scale);
-        ctx.lineTo(-(sizes.ball * sizes.scale * 15) / 2, player.Beam * sizes.scale);
+        ctx.arc(0, 0, player.Beam.length * sizes.scale, -player.Beam.angle+Math.PI/2, player.Beam.angle+Math.PI/2);
         ctx.closePath();
-        view = ctx.createRadialGradient(0, 0, sizes.ball * sizes.scale, 0, 0, Math.max(player.Beam * sizes.scale * 2 * player.Speed, sizes.ball * sizes.scale));
+        view = ctx.createRadialGradient(0, 0, sizes.ball * sizes.scale, 0, 0, Math.max(player.Beam.length * sizes.scale * 2 * player.Speed, sizes.ball * sizes.scale));
         view.addColorStop(0.3, "rgba(255,255,255,0.6)");
         view.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = view;

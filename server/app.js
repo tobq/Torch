@@ -60,7 +60,7 @@ setInterval(function () {
                             for (var p = 0; p < sec.length; ++p) {
                                 var nearPlayer = sec[p],
                                     d;
-                                if ((d = Math.sqrt(Math.pow(player.x-nearPlayer.x,2)+Math.pow(player.y-nearPlayer.y,2))) < player.Beam/20000) {
+                                if ((d = Math.sqrt(Math.pow(player.x-nearPlayer.x,2)+Math.pow(player.y-nearPlayer.y,2))) < player.Beam.length/20000) {
                                     player.Near[nearPlayer.Socket] = {
                                         Name: nearPlayer.Name,
                                         x: nearPlayer.x,
@@ -115,7 +115,10 @@ io.on('connection', function (socket) {
             user.Speed = 0;
             user.Score = 0;
             user.Health = 100;
-            user.Beam = 500;
+            user.Beam = {
+                length: 500,
+                angle: 0.6
+            };
             user.Name = usr.usr.toString().substr(0, 20);
             user.x = Math.random();
             user.y = Math.random();
@@ -127,7 +130,7 @@ io.on('connection', function (socket) {
     socket.on('i', function (i) {
         if (user) {
             user.Angle = parseFloat(i.a);
-            user.Speed = Math.min(Math.max((parseFloat(i.d) - 25) / 100, 0), playerSpeed);
+            user.Speed = Math.min(Math.max(parseFloat(i.d-30)/(user.Beam.length/2), 0), playerSpeed);
         }
     });
 
