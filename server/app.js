@@ -6,27 +6,38 @@ var express = require('express'),
     PORT = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     playerSpeed = 0.5,
     ServerRegion = "Europe",
-    games = {
-        A: {
-            players: {}
-        },
-        B: {
-            players: {}
-        },
-        C: {
-            players: {}
+    Sections = (function () {
+        var sections = [];
+        for (var x = 0; x < 20; ++x) {
+            sections[x] = [];
+            for (var y = 0; y < 20; ++y) {
+                sections[x][y] = [];
+            }
         }
-    };
+        return sections;
+    })(),
+    games = (function () {
+        var Games = {},
+            games = ["A", "B", "C"];
+        for (var i = 0; i < games.length; ++i) {
+            Games[games[i]] = {
+                players: {}
+            }
+        }
+        return Games;
+    })();
 
 setInterval(function () {
     for (var game in games) {
+        games[game].sections = copy(Sections);
         for (var player in games[game].players) {
             player = games[game].players[player];
             player.x = Math.min(Math.max((Math.cos(player.Angle) / (1000 / player.Speed)) + player.x, 0), 1);
             player.y = Math.min(Math.max((Math.sin(player.Angle) / (1000 / player.Speed)) + player.y, 0), 1);
-            player.Score += 0.1;
-            io.to(game).emit("u", games[game].players);
+            player.Score += 0.185*player.Speed;
+            games[game].sections[Math.floor(player.x*19.99999999999999)][Math.floor(player.y*19.99999999999999)].push(player.Name);
         }
+        io.to(game).emit("u", games[game].players);
     }
 }, 20);
 
@@ -55,7 +66,6 @@ io.on('connection', function (socket) {
         if (!Object.keys(user).length) {
             game = Object.keys(games)[Math.floor(Math.random() * Object.keys(games).length)];
             socket.join(game);
-            games[game].players[socket.id] = user;
             user.Angle = 0;
             user.Speed = 0;
             user.Score = 0;
@@ -63,6 +73,7 @@ io.on('connection', function (socket) {
             user.Name = usr.usr.substr(0, 20);
             user.x = Math.random();
             user.y = Math.random();
+            games[game].players[socket.id] = user;
             socket.emit("si", {region: ServerRegion, name: game});
             console.log("> " + socket.id + " joined game: " + game + " - Name: " + user.Name);
         }
@@ -85,5 +96,10 @@ io.on('connection', function (socket) {
     });
     console.log('New connection: ' + socket.id);
 });
-
-
+function copy(arr){
+    var new_arr = arr.slice(0);
+    for(var i = new_arr.length; i--;)
+        if(new_arr[i] instanceof Array)
+            new_arr[i] = copy(new_arr[i]);
+    return new_arr;
+}

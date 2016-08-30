@@ -161,7 +161,7 @@ socket.on("b", function (b) {
     var top = $("#leaders").empty();
     for (var i = 0; i < b.length; ++i) {
         var user = document.createElement("span");
-        user.innerHTML = (i + 1) + " " + escapeHTML(b[i].Name);
+        user.innerHTML = Math.round(b[i].Score) + " " + escapeHTML(b[i].Name);
         top.append(user);
     }
 });
@@ -199,7 +199,7 @@ function toggleFPS() {
     }
     FPS.calcFPS = !FPS.calcFPS;
 }
-
+socket.on("console",function(log){console.log(log)});
 //TODO: give only users in range ... so server doesn't DDOS user...
 //            var glow = ctx.createRadialGradient(0,0,sizes.ball,0,0,sizes.ball+sizes.glow);
 //            glow.addColorStop(0,"#999");
