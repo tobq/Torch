@@ -38,7 +38,7 @@ setInterval(function () {
                 player.x = Math.min(Math.max((Math.cos(player.Angle) / (1000 / player.Speed)) + player.x, 0), 1);
                 player.y = Math.min(Math.max((Math.sin(player.Angle) / (1000 / player.Speed)) + player.y, 0), 1);
                 player.Score += 0.185 * player.Speed;
-                games[game].sections[Math.floor(player.x * (NumOfSections-0.000000001))][Math.floor(player.y * (NumOfSections-0.000000001))].push(player);
+                games[game].sections[~~(player.x * (NumOfSections-0.000000001))][~~(player.y * (NumOfSections-0.000000001))].push(player);
             } else delete player;
         }
         for (var x = 0; x < sections.length; ++x) {
@@ -61,7 +61,7 @@ setInterval(function () {
                                 var nearPlayer = sec[p],
                                     d;
                                 if ((d = Math.sqrt(Math.pow(player.x-nearPlayer.x,2)+Math.pow(player.y-nearPlayer.y,2))) < player.Beam/20000) {
-                                    player.Near[nearPlayer.Socket] = player.Near[nearPlayer.Socket] = {
+                                    player.Near[nearPlayer.Socket] = {
                                         Name: nearPlayer.Name,
                                         x: nearPlayer.x,
                                         y: nearPlayer.y,
@@ -103,19 +103,20 @@ server.listen(PORT, function () {
 });
 
 io.on('connection', function (socket) {
-    var user = {},
+    var user,
         game;
     socket.on("join", function (usr) {
-        if (!Object.keys(user).length) {
-            game = Object.keys(games)[Math.floor(Math.random() * Object.keys(games).length)];
+        if (!user) {
+            game = Object.keys(games)[~~(Math.random() * Object.keys(games).length)];
             socket.join(game);
+            user = {};
             user.Socket = socket.id;
             user.Angle = 0;
             user.Speed = 0;
             user.Score = 0;
             user.Health = 100;
             user.Beam = 500;
-            user.Name = usr.usr.substr(0, 20);
+            user.Name = usr.usr.toString().substr(0, 20);
             user.x = Math.random();
             user.y = Math.random();
             games[game].players[socket.id] = user;
@@ -124,14 +125,16 @@ io.on('connection', function (socket) {
         }
     });
     socket.on('i', function (i) {
-        user.Angle = i.a;
-        user.Speed = Math.min(Math.max((i.d - 25) / 400, 0), playerSpeed);
+        if (user) {
+            user.Angle = parseFloat(i.a);
+            user.Speed = Math.min(Math.max((parseFloat(i.d) - 25) / 100, 0), playerSpeed);
+        }
     });
 
     socket.on('leave', function () {
         delete games[game].players[socket.id];
         socket.leave(game);
-        user = {};
+        user = null;
         console.log("> " + socket.id + " left game: " + game);
     });
 

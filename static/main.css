@@ -96,10 +96,12 @@ label.leaders {
     overflow: hidden;
     word-break: keep-all;
     white-space: nowrap;
+    width: 100%;
 }
-#leaders > .score {
+.score {
     font-size: 12px;
     color: #999;
+    margin-right: 10px;
 }
 
 #con {
