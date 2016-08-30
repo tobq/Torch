@@ -81,7 +81,7 @@ label.leaders {
     width: 100%;
     padding: 8px;
     display: inline-block;
-    margin-bottom: 4px;
+    margin-bottom: 10px;
     text-align: center;
 }
 
@@ -90,12 +90,16 @@ label.leaders {
 }
 
 #leaders > span {
-    display: block;
+    line-height: 20px;
+    display: inline-block;
     padding: 0px 10px;
     overflow: hidden;
-    width: 100%;
     word-break: keep-all;
     white-space: nowrap;
+}
+#leaders > .score {
+    font-size: 12px;
+    color: #999;
 }
 
 #con {

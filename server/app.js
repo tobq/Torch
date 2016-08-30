@@ -6,11 +6,12 @@ var express = require('express'),
     PORT = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     playerSpeed = 0.5,
     ServerRegion = "Europe",
+    NumOfSections = 20;
     Sections = (function () {
         var sections = [];
-        for (var x = 0; x < 20; ++x) {
+        for (var x = 0; x < NumOfSections; ++x) {
             sections[x] = [];
-            for (var y = 0; y < 20; ++y) {
+            for (var y = 0; y < NumOfSections; ++y) {
                 sections[x][y] = [];
             }
         }
@@ -29,15 +30,56 @@ var express = require('express'),
 
 setInterval(function () {
     for (var game in games) {
-        games[game].sections = copy(Sections);
+        var sections = (games[game].sections = copy(Sections));
         for (var player in games[game].players) {
             player = games[game].players[player];
-            player.x = Math.min(Math.max((Math.cos(player.Angle) / (1000 / player.Speed)) + player.x, 0), 1);
-            player.y = Math.min(Math.max((Math.sin(player.Angle) / (1000 / player.Speed)) + player.y, 0), 1);
-            player.Score += 0.185*player.Speed;
-            games[game].sections[Math.floor(player.x*19.99999999999999)][Math.floor(player.y*19.99999999999999)].push(player.Name);
+            if (player.Health) {
+                player.x = Math.min(Math.max((Math.cos(player.Angle) / (1000 / player.Speed)) + player.x, 0), 1);
+                player.y = Math.min(Math.max((Math.sin(player.Angle) / (1000 / player.Speed)) + player.y, 0), 1);
+                player.Score += 0.185 * player.Speed;
+                games[game].sections[Math.floor(player.x * (NumOfSections-0.000000001))][Math.floor(player.y * (NumOfSections-0.000000001))].push(player);
+            } else delete player;
         }
-        io.to(game).emit("u", games[game].players);
+        for (var x = 0; x < sections.length; ++x) {
+            var xRange,
+                yRange;
+            if (x === 0) xRange = [0, 1];
+            else if (x === NumOfSections -1 ) xRange = [NumOfSections -2, NumOfSections-1];
+            else xRange = [x - 1, x, x + 1];
+            for (var y = 0; y < sections[x].length; ++y) {
+                if (y === 0) yRange = [0, 1];
+                else if (y === NumOfSections -1) yRange = [NumOfSections-2, NumOfSections-1];
+                else yRange = [y - 1, y, y + 1];
+                for (player in sections[x][y]) {
+                    player = sections[x][y][player];
+                    player.Near = {};
+                    for (var xs = 0; xs < xRange.length; ++xs) {
+                        for (var ys = 0; ys < yRange.length; ++ys) {
+                            var sec = sections[xRange[xs]][yRange[ys]];
+                            for (var p = 0; p < sec.length; ++p) {
+                                var nearPlayer = sec[p],
+                                    d;
+                                if ((d = Math.sqrt(Math.pow(player.x-nearPlayer.x,2)+Math.pow(player.y-nearPlayer.y,2))) < player.Beam/20000) {
+                                    player.Near[nearPlayer.Socket] = player.Near[nearPlayer.Socket] = {
+                                        Name: nearPlayer.Name,
+                                        x: nearPlayer.x,
+                                        y: nearPlayer.y,
+                                        Speed: nearPlayer.Speed,
+                                        Angle: nearPlayer.Angle,
+                                        Beam: nearPlayer.Beam
+                                    }
+                                    if (d < 0.003 && player.Socket != nearPlayer.Socket) {
+                                        player.Health = 0;
+                                        nearPlayer.Health = 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    io.sockets.sockets[player.Socket].emit("u", player.Near);
+                }
+            }
+        }
     }
 }, 20);
 
@@ -66,10 +108,12 @@ io.on('connection', function (socket) {
         if (!Object.keys(user).length) {
             game = Object.keys(games)[Math.floor(Math.random() * Object.keys(games).length)];
             socket.join(game);
+            user.Socket = socket.id;
             user.Angle = 0;
             user.Speed = 0;
             user.Score = 0;
-            user.Beam = 1000;
+            user.Health = 100;
+            user.Beam = 500;
             user.Name = usr.usr.substr(0, 20);
             user.x = Math.random();
             user.y = Math.random();
@@ -77,7 +121,7 @@ io.on('connection', function (socket) {
             socket.emit("si", {region: ServerRegion, name: game});
             console.log("> " + socket.id + " joined game: " + game + " - Name: " + user.Name);
         }
-    })
+    });
     socket.on('i', function (i) {
         user.Angle = i.a;
         user.Speed = Math.min(Math.max((i.d - 25) / 400, 0), playerSpeed);
@@ -96,10 +140,13 @@ io.on('connection', function (socket) {
     });
     console.log('New connection: ' + socket.id);
 });
-function copy(arr){
+function copy(arr) {
     var new_arr = arr.slice(0);
-    for(var i = new_arr.length; i--;)
-        if(new_arr[i] instanceof Array)
+    for (var i = new_arr.length; i--;)
+        if (new_arr[i] instanceof Array)
             new_arr[i] = copy(new_arr[i]);
     return new_arr;
 }
+//
+//
+//
