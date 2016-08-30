@@ -48,7 +48,7 @@ back.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Graph-pape
 function setCanvas() {
     canvas.width = $(document).width();
     canvas.height = $(document).height();
-    ctx.font = "bold " + (sizes.ball * 0.6) + "px Rubik";
+    ctx.font = "bold " + (sizes.ball * 0.5) + "px Rubik";
     ctx.textAlign = 'center';
 }
 (window.onresize = setCanvas)();
@@ -58,7 +58,7 @@ $(window).keydown(function(e){
         $("#home").css({opacity:1,"z-index":0});
         $(".overlays").css("opacity",0);
         document.onmousemove = null;
-    }
+    } else if (e.which === 16) toggleFPS();
 });
 
 $("form").submit(function (e) {
@@ -71,7 +71,7 @@ $("form").submit(function (e) {
     $("section.settings").css({
         "max-height": 40,
         "padding-top": 0
-    });
+    }).addClass("closed");
     document.onmousemove = function (e) {
         if (Date.now() - lastM > 20) {
             var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)),
@@ -80,9 +80,8 @@ $("form").submit(function (e) {
             lastM = Date.now();
         }
     };
-    name.val("");
     setTimeout(function () {
-        home.css("z-index", -1);
+        home.css("z-index", -2);
     }, 300);
     e.preventDefault();
     return false;
@@ -159,7 +158,7 @@ socket.on("si", function (si) {
     });
 });
 socket.on("b", function (b) {
-    var top = $("#leaders").html("");
+    var top = $("#leaders").empty();
     for (var i = 0; i < b.length; ++i) {
         var user = document.createElement("span");
         user.innerHTML = (i + 1) + " " + escapeHTML(b[i].Name);
@@ -172,30 +171,34 @@ $("button.settings").click(function(){
         $("section.settings").css({
             "max-height": 500,
             "padding-top": 40
-        });
+        }).addClass("closed");
     } else {
         this.style.transform = "";
         $("section.settings").css({
             "max-height": 40,
             "padding-top": 0
-        });
+        }).removeClass("closed");
     }
 });
-$(".fps.check").click(function(){
-    var fpsc = $("#fpsc");
+$(".fps.check").click(toggleFPS);
+
+function toggleFPS() {
+    var fpsc = $("#fpsc")[0],
+        check = $(".fps.check")[0];
     if (FPS.calcFPS) {
-        this.style.background = 'none';
-        fpsc.css("opacity",0);
+        check.style.background = 'none';
+        fpsc.style.opacity = 0;
         setTimeout(function(){
-            fpsc.removeClass("overlays");
+            fpsc.className = "";
         },300);
     }
     else {
-        this.style.background = '#444';
-        fpsc.addClass("overlays").css("opacity",1);
+        check.style.background = '#444';
+        fpsc.className = "overlays";
+        fpsc.style.opacity = 1;
     }
     FPS.calcFPS = !FPS.calcFPS;
-});
+}
 
 //TODO: give only users in range ... so server doesn't DDOS user...
 //            var glow = ctx.createRadialGradient(0,0,sizes.ball,0,0,sizes.ball+sizes.glow);

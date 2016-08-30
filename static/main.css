@@ -163,6 +163,9 @@ section.settings {
     transition: max-height 0.4s cubic-bezier(0, 1, 0, 1), padding 0.4s ease;
     overflow: hidden;
 }
+section.settings.closed {
+    transition: max-height 0.4s ease-in, padding 0.4s ease;
+}
 
 section.settings > .op {
     display: inline-block;
