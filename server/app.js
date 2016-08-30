@@ -3,6 +3,7 @@ var express = require('express'),
     server = require("http").createServer(app),
     io = require("socket.io").listen(server),
     cors = require("cors"),
+    IP = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1",
     PORT = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 8080,
     playerSpeed = 0.5,
     ServerRegion = "Europe",
@@ -97,8 +98,8 @@ setInterval(function () {
 app.use(cors());
 app.use(express.static(__dirname + '/../static'));
 
-server.listen(PORT, function () {
-    console.log("Listening at http://127.0.0.1:" + PORT);
+server.listen(PORT,IP, function () {
+    console.log("Listening at http://"+IP+":"+PORT);
 });
 
 io.on('connection', function (socket) {
