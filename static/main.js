@@ -41,7 +41,6 @@ var canvas = document.getElementById("map"),
     },
     lastM = 0,
     players = {},
-    playersOld,
     view = "#FFF";
 
 function setCanvas() {
@@ -97,7 +96,6 @@ $("form").submit(function (e) {
         offX = backX % (sizes.back.spacing * sizes.scale),
         offY = backY % (sizes.back.spacing * sizes.scale);
 
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#112632";
     for (var xc = -sizes.back.spacing * sizes.scale; xc < canvas.width + sizes.back.spacing * sizes.scale; xc += (sizes.back.spacing * sizes.scale)) {
@@ -140,6 +138,7 @@ $("form").submit(function (e) {
         ctx.fillText(player.Name.substr(0, 1).toUpperCase(), 0, sizes.ball * sizes.scale / 4, 20);
         ctx.restore();
     }
+
     if (FPS.calcFPS && (delta = Date.now() - FPS.lastCount) >= 500) {
         FPS.div.innerHTML = Math.round(FPS.framesShown / delta * 1000);
         FPS.lastCount = Date.now();
@@ -150,8 +149,11 @@ $("form").submit(function (e) {
 })();
 
 socket.on("u", function (u) {
-    playersOld = players;
     players = u;
+    var base,
+        coord = document.getElementById("coord");
+    if (base = players["/#"+socket.id]) coord.innerHTML = String.fromCharCode(65+(~~(base.x * (10))))+" "+(~~(base.y * (10)));
+    else coord.innerHTML = "";
 });
 socket.on("si", function (si) {
     $("#siN").html("Server: " + si.name);
