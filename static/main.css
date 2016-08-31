@@ -252,6 +252,9 @@ section.settings .hr {
     padding: 0px 15px;
     line-height: 35px;
 }
+span.your {
+    color: #9adbff;
+}
 .your.score {
     color: #96D5F8;
 }

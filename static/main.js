@@ -183,6 +183,7 @@ socket.on("b", function (b) {
         score.className = "score";
         if (b[i].ID === "/#" + socket.id) {
             score.className += " your";
+            user.className = "your";
             Score.style.height = 0;
         }
         score.appendChild(document.createTextNode(Math.round(b[i].Score)));
