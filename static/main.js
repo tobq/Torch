@@ -57,6 +57,7 @@ $(window).keydown(function (e) {
         $(".overlays").css("opacity", 0);
         document.onmousemove = null;
     } else if (e.which === 16) toggleFPS();
+    else if (e.which === 67) toggleCoords();
 });
 window.onwheel = function (e) {
     sizes.scale = Math.min(Math.max(sizes.scale - (e.deltaY / 1500), 300/(players["/#"+socket.id]?players["/#"+socket.id].Beam.length:500)),2);
@@ -193,10 +194,11 @@ $("button.settings").click(function () {
     }
 });
 document.getElementsByClassName('fps check')[0].onclick = toggleFPS;
+document.getElementsByClassName('coord check')[0].onclick = toggleCoords;
 
 function toggleFPS() {
     var fpsc = document.getElementById("fpsc"),
-        check = $(".fps.check")[0];
+        check = document.getElementsByClassName("fps check")[0];
     if (FPS.calcFPS) {
         check.style.background = 'none';
         fpsc.style.opacity = 0;
@@ -211,6 +213,23 @@ function toggleFPS() {
     }
     FPS.calcFPS = !FPS.calcFPS;
 }
+function toggleCoords() {
+    var coord = document.getElementById("coord"),
+        check = document.getElementsByClassName("coord check")[0];
+    if (!check.style.background || check.style.background === "none") {
+        check.style.background = '#444';
+        coord.className = "overlays";
+        coord.style.opacity = 1;
+    }
+    else {
+        check.style.background = 'none';
+        coord.style.opacity = 0;
+        setTimeout(function () {
+            coord.className = "";
+        }, 300);
+    }
+}
+
 socket.on("console", function (log) {
     console.log(log);
 });

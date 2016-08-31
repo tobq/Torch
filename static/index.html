@@ -16,7 +16,8 @@
     </form>
         <button class="settings"></button>
         <section class="settings">
-            <span class="op">Show FPS <div class="check fps"></div></span>
+            <span class="op">Show FPS <div class="check fps"></div><small>(shift)</small></span>
+            <span class="op">Show Co-ords <div class="check coord"></div><small>(C)</small></span>
             <div id="si">
                 <div class="hr"></div>
                 <div>Server Information</div>
@@ -36,7 +37,8 @@
     <label class="fps">FPS</label>
     <div id="fps">~</div>
 </div>
-<div id="coord" class="overlays"></div>
+<div id="coord"></div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="/main.js"></script>
 </body>
