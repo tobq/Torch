@@ -41,7 +41,8 @@ var canvas = document.getElementById("map"),
     },
     lastM = 0,
     players = {},
-    view = "#FFF";
+    view = "#FFF",
+    Base;
 
 function setCanvas() {
     canvas.width = $(document).width();
@@ -60,7 +61,7 @@ $(window).keydown(function (e) {
     else if (e.which === 67) toggleCoords();
 });
 window.onwheel = function (e) {
-    sizes.scale = Math.min(Math.max(sizes.scale - (e.deltaY / 1500), 300/(players["/#"+socket.id]?players["/#"+socket.id].Beam.length:500)),2);
+    sizes.scale = Math.min(Math.max(sizes.scale - (e.deltaY / 1500), 300 / (Base ? Base.Beam.length : 500)), 2);
     ctx.font = "bold " + Math.round(sizes.ball * 0.5 * sizes.scale) + "px Rubik";
 };
 
@@ -77,7 +78,7 @@ $("form").submit(function (e) {
     }).addClass("closed");
     document.onmousemove = function (e) {
         if (Date.now() - lastM > 20) {
-            var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2))/sizes.scale,
+            var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)) / sizes.scale,
                 angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
             socket.emit("i", {a: angle, d: distance});
             lastM = Date.now();
@@ -90,7 +91,7 @@ $("form").submit(function (e) {
     return false;
 });
 (function draw() {
-    var base = players["/#" + socket.id] || {x: 0.5, y: 0.5},
+    var base = Base || {x: 0.5, y: 0.5},
         delta,
         backX = canvas.width / 2 - (sizes.back.size * sizes.scale * base.x),
         backY = canvas.height / 2 - (sizes.back.size * sizes.scale * base.y),
@@ -116,7 +117,7 @@ $("form").submit(function (e) {
         ctx.rotate(player.Angle + (Math.PI * 3 / 2));
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball * sizes.scale, Math.PI, 0);
-        ctx.arc(0, 0, player.Beam.length * sizes.scale, -player.Beam.angle+Math.PI/2, player.Beam.angle+Math.PI/2);
+        ctx.arc(0, 0, player.Beam.length * sizes.scale, -player.Beam.angle + Math.PI / 2, player.Beam.angle + Math.PI / 2);
         ctx.closePath();
         view = ctx.createRadialGradient(0, 0, sizes.ball * sizes.scale, 0, 0, Math.max(player.Beam.length * sizes.scale * 2 * player.Speed, sizes.ball * sizes.scale));
         view.addColorStop(0.3, "rgba(255,255,255,0.6)");
@@ -151,9 +152,10 @@ $("form").submit(function (e) {
 
 socket.on("u", function (u) {
     players = u;
-    var base,
-        coord = document.getElementById("coord");
-    if (base = players["/#"+socket.id]) coord.innerHTML = String.fromCharCode(65+(~~(base.x * (9.999999999))))+" "+(~~(base.y * (9.999999999))+1);
+    var coord = document.getElementById("coord");
+    if (Base = players["/#" + socket.id]) {
+        coord.innerHTML = String.fromCharCode(65 + (~~(Base.x * (9.999999999)))) + " " + (~~(Base.y * (9.999999999)) + 1);
+    }
     else coord.innerHTML = "";
 });
 socket.on("si", function (si) {
@@ -165,6 +167,11 @@ socket.on("si", function (si) {
     });
 });
 socket.on("b", function (b) {
+    if (Base) {
+        var Score = document.getElementById("score");
+        Score.style.height = "20px";
+        Score.innerHTML = Math.round(Base.Score);
+    }
     var leaders = document.getElementById("leaders");
     while (leaders.firstChild) {
         leaders.removeChild(leaders.firstChild);
@@ -174,10 +181,19 @@ socket.on("b", function (b) {
             score = document.createElement("span"),
             name = document.createTextNode(escapeHTML(b[i].Name));
         score.className = "score";
+        if (b[i].ID === "/#" + socket.id) {
+            score.className += " your";
+            Score.style.height = 0;
+        }
         score.appendChild(document.createTextNode(Math.round(b[i].Score)));
         leaders.appendChild(user).appendChild(score).parentNode.appendChild(name);
     }
 });
+
+socket.on("d", function (d) {
+
+});
+
 $("button.settings").click(function () {
     if (!this.style.transform || this.style.transform === "none") {
         this.style.transform = "rotate(-120deg)";

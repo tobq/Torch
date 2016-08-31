@@ -39,9 +39,10 @@ setInterval(function () {
                 player.x = Math.min(Math.max((Math.cos(player.Angle) / (1000 / player.Speed)) + player.x, 0), 1);
                 player.y = Math.min(Math.max((Math.sin(player.Angle) / (1000 / player.Speed)) + player.y, 0), 1);
                 player.Score += 0.185 * player.Speed;
+                player.Health.val = Math.min(player.Health.val+player.Health.regen,player.Health.max);
                 games[game].sections[~~(player.x * (NumOfSections - 0.000000001))][~~(player.y * (NumOfSections - 0.000000001))][Socket] = player;
             } else {
-                delete games[game].players[player];
+                delete games[game].players[Socket];
             }
         }
         for (var x = 0; x < sections.length; ++x) {
@@ -64,8 +65,10 @@ setInterval(function () {
                         y: player.y,
                         Speed: player.Speed,
                         Angle: player.Angle,
-                        Beam: player.Beam
-                    }
+                        Beam: player.Beam,
+                        Health: player.Health,
+                        Score: player.Score
+                    };
                     for (var xs = 0; xs < xRange.length; ++xs) {
                         for (var ys = 0; ys < yRange.length; ++ys) {
                             var sec = sections[xRange[xs]][yRange[ys]];
@@ -75,30 +78,49 @@ setInterval(function () {
                                         nearPlayer = sec[nearPlayer],
                                         dA = Math.atan2(nearPlayer.y - player.y, nearPlayer.x - player.x),
                                         d;
-                                    if ((d = Math.sqrt(Math.pow(player.x - nearPlayer.x, 2) + Math.pow(player.y - nearPlayer.y, 2))) < (player.Beam.length / 20000) + 0.002) {
-                                        if (dA <= player.Angle + player.Beam.angle && dA >= player.Angle - player.Beam.angle) {
-                                            player.Near[nearSocket] = {
-                                                Name: nearPlayer.Name,
-                                                x: nearPlayer.x,
-                                                y: nearPlayer.y,
-                                                Speed: nearPlayer.Speed,
-                                                Angle: nearPlayer.Angle,
-                                                Beam: nearPlayer.Beam
+                                    if (((d = Math.sqrt(Math.pow(player.x - nearPlayer.x, 2) + Math.pow(player.y - nearPlayer.y, 2))) < (player.Beam.length / 20000) + 0.002)
+                                        && (dA <= player.Angle + player.Beam.angle && dA >= player.Angle - player.Beam.angle)) {
+                                        player.Near[nearSocket] = {
+                                            Name: nearPlayer.Name,
+                                            x: nearPlayer.x,
+                                            y: nearPlayer.y,
+                                            Speed: nearPlayer.Speed,
+                                            Angle: nearPlayer.Angle,
+                                            Beam: nearPlayer.Beam,
+                                            Health: player.Health
+                                        }
+                                        nearPlayer.Health.val = Math.max(nearPlayer.Health.val - (d / player.Beam.length * 20000), 0);
+                                        if (!nearPlayer.Health) {
+                                            nearPlayer.Health.Death = {
+                                                type: 1,
+                                                user: player.Name
                                             }
-                                            nearPlayer.Health = Math.max(nearPlayer.Health - (d / player.Beam.length * 20000),0);
-                                            if (!nearPlayer.Health) player.Score+=0.8*nearPlayer.Score;
-                                            player.Score += 2;
-                                            if (d < 0.003) {
-                                                player.Health = 0;
-                                                nearPlayer.Health = 0;
+                                            player.Score += 0.8 * nearPlayer.Score;
+                                            delete games[game].players[nearSocket];
+                                        }
+                                        player.Score += 2;
+                                        if (d < 0.003) {
+                                            player.Health.val = 0;
+                                            player.Health.Death = {
+                                                type: 0,
+                                                user: nearPlayer.Name
                                             }
+                                            nearPlayer.Health.val = 0;
+                                            nearPlayer.Health.Death = {
+                                                type: 0,
+                                                user: player.Name
+                                            }
+                                            io.sockets.sockets[Socket].emit("console",player.Health.Death);
+                                            io.sockets.sockets[nearSocket].emit("console",nearPlayer.Health.Death);
+                                            delete games[game].players[Socket];
+                                            delete games[game].players[nearSocket];
                                         }
                                     }
                                 }
                             }
+                            if (io.sockets.sockets[Socket]) io.sockets.sockets[Socket].emit("u",player.Near);
                         }
                     }
-                    if (io.sockets.sockets[Socket]) io.sockets.sockets[Socket].emit("u", player.Near);
                 }
             }
         }
@@ -108,7 +130,11 @@ setInterval(function () {
 setInterval(function () {
     for (var game in games) {
         var board = [];
-        for (var player in games[game].players) board.push(games[game].players[player]);
+        for (var player in games[game].players) {
+            var ob = JSON.parse(JSON.stringify(games[game].players[player]));
+            ob.ID = player;
+            board.push(ob);
+        }
         board = board.sort(function (a, b) {
             return b.Score - a.Score;
         }).slice(0, 5);
@@ -125,15 +151,18 @@ server.listen(PORT, function () {
 
 io.on('connection', function (socket) {
     var user = {},
-        game;
+        game = Object.keys(games)[~~(Math.random() * Object.keys(games).length)];
+    socket.join(game);
     socket.on("join", function (usr) {
         if (!user.Health) {
-            game = Object.keys(games)[~~(Math.random() * Object.keys(games).length)];
-            socket.join(game);
             user.Angle = 0;
             user.Speed = 0;
             user.Score = 0;
-            user.Health = 100;
+            user.Health = {
+                regen: 0.1,
+                val: 100,
+                max: 100
+            };
             user.Beam = {
                 length: 500,
                 angle: 0.6
@@ -168,11 +197,9 @@ io.on('connection', function (socket) {
 });
 function copy(arr) {
     var new_arr = arr.slice(0);
-    for (var i = new_arr.length; i--;)
-        if (new_arr[i] instanceof Array)
-            new_arr[i] = copy(new_arr[i]);
-        else if (new_arr[i] instanceof Object) {
-            new_arr[i] = {};
-        }
+    for (var i = new_arr.length; i--;){
+        if (new_arr[i] instanceof Array) new_arr[i] = copy(new_arr[i]);
+        else if (new_arr[i] instanceof Object) new_arr[i] = {};
+    }
     return new_arr;
 }
