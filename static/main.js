@@ -153,7 +153,7 @@ socket.on("u", function (u) {
     players = u;
     var base,
         coord = document.getElementById("coord");
-    if (base = players["/#"+socket.id]) coord.innerHTML = String.fromCharCode(65+(~~(base.x * (10))))+" "+(~~(base.y * (10)));
+    if (base = players["/#"+socket.id]) coord.innerHTML = String.fromCharCode(65+(~~(base.x * (9.999999999))))+" "+(~~(base.y * (9.999999999))+1);
     else coord.innerHTML = "";
 });
 socket.on("si", function (si) {
