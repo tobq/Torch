@@ -296,3 +296,11 @@ span.your {
     background: #274b33;
     font-family: lemon, Roboto, Roboto-Regular, Arial;
 }
+#output {
+    position: absolute;
+    bottom: 50px;
+    left: 0px;
+    text-align: center;
+    font-size: 18px;
+    color: #FFF;
+}

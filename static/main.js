@@ -54,9 +54,7 @@ function setCanvas() {
 
 $(window).keydown(function (e) {
     if (e.which === 27) {
-        $("#home").css({opacity: 1, "z-index": 0});
-        $(".overlays").css("opacity", 0);
-        document.onmousemove = null;
+        openHome();
     } else if (e.which === 16) toggleFPS();
     else if (e.which === 67) toggleCoords();
 });
@@ -139,16 +137,15 @@ socket.on("u", function (u) {
     else coord.innerHTML = "";
 });
 socket.on("si", function (si) {
-    $("#siN").html("Server: " + si.name);
-    $("#siR").html("Region: " + si.region);
-    $("#si").css({
-        height: "auto",
-        "padding-bottom": 5
-    });
+    var SI = document.getElementById("si");
+    document.getElementById("siN").innherHTML="Server: " + si.name;
+    document.getElementById("siR").innherHTML="Region: " + si.region;
+    SI.style.height = "auto";
+    SI.style.paddingBottom = "5px";
 });
 socket.on("b", function (b) {
-    if (Base && Base.Health) {
-        var Score = document.getElementById("score");
+    var Score = document.getElementById("score");
+    if (Base && Base.Health.val) {
         Score.style.height = "20px";
         Score.innerHTML = Math.round(Base.Score);
     }
@@ -173,6 +170,8 @@ socket.on("b", function (b) {
 
 socket.on("d", function (d) {
     Base.Health = 0;
+    document.getElementById("output").innerHTML = "You were killed by "+(escapeHTML(d.user).trim()||"an anonymous Wocher");
+    openHome();
 });
 
 $("button.settings").click(function () {
@@ -235,6 +234,11 @@ function hideHome() {
         home.style.zIndex = -1;
     }, 300);
 }
+function openHome(){
+    $("#home").css({opacity: 1, "z-index": 0});
+    $(".overlays").css("opacity", 0);
+    document.onmousemove = null;
+}
 function toggleCoords() {
     var coord = document.getElementById("coord"),
         check = document.getElementsByClassName("coord check")[0];
@@ -255,10 +259,3 @@ function toggleCoords() {
 socket.on("console", function (log) {
     console.log(log);
 });
-
-//TODO: SMOOTHEN SCROLLING
-//TODO: LOWER HEALTH IN BEAM
-
-//            var glow = ctx.createRadialGradient(0,0,sizes.ball,0,0,sizes.ball+sizes.glow);
-//            glow.addColorStop(0,"#999");
-//            glow.addColorStop(1,"rgba(0,0,0,0)");

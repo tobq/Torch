@@ -2,9 +2,9 @@
   "name": "Watch",
   "version": "0.0.1",
   "private": true,
-  "main": "./server/app.js",
+  "main": "./server/app.min.js",
   "scripts": {
-    "start": "node ./server/app.js"
+    "start": "node ./server/app.min.js"
   },
   "dependencies": {
     "cors": "^2.8.0",

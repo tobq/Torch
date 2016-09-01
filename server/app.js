@@ -7,9 +7,9 @@ var express = require('express'),
     NumOfSections = 10,
     Sections = (function () {
         var sections = [];
-        for (var x = 0; x < NumOfSections; ++x) {
+        for (var x = NumOfSections; x--;) {
             sections[x] = [];
-            for (var y = 0; y < NumOfSections; ++y) {
+            for (var y = NumOfSections; y--;) {
                 sections[x][y] = {};
             }
         }
@@ -19,7 +19,7 @@ var express = require('express'),
     ServerRegion = "Europe",
     games = (function () {
         var Games = {};
-        for (var i = 0; i < GAMES.length; ++i) {
+        for (var i = GAMES.length; i--;) {
             Games[GAMES[i]] = {
                 playing: {}
             }
@@ -45,13 +45,13 @@ setInterval(function () {
             }
         }
 
-        for (var x = 0; x < NumOfSections; ++x) {
+        for (var x = NumOfSections; x--;) {
             var xRange, yRange;
             if (x === 0) xRange = [0, 1];
             else if (x === NumOfSections - 1) xRange = [NumOfSections - 2, NumOfSections - 1];
             else xRange = [x - 1, x, x + 1];
 
-            for (var y = 0; y < NumOfSections; ++y) {
+            for (var y = NumOfSections; y--;) {
                 if (y === 0) yRange = [0, 1];
                 else if (y === NumOfSections - 1) yRange = [NumOfSections - 2, NumOfSections - 1];
                 else yRange = [y - 1, y, y + 1];
@@ -70,7 +70,7 @@ setInterval(function () {
                         Health: player.Health.val,
                         Score: player.Score
                     };
-                    for (var xs = 0; xs < xRange.length; ++xs) for (var ys = 0; ys < yRange.length; ++ys) {
+                    for (var xs = xRange.length; xs--;) for (var ys = yRange.length; ys--;) {
                         var sec = sections[xRange[xs]][yRange[ys]];
                         for (var nearPlayer in sec) {
                             if (nearPlayer != Socket) {
@@ -98,16 +98,16 @@ setInterval(function () {
                                         player.Score += 0.8 * nearPlayer.Score;
                                     }
                                     player.Score += 2;
-                                    if (d < 0.003) {
-                                        player.Health.Death = { type: 0, user: nearPlayer.Name };
-                                        nearPlayer.Health.Death = { type: 0, user: player.Name };
-                                        player.Health.val = 0;
-                                        nearPlayer.Health.val = 0;
-                                    }
+                                }
+                                if (d < 0.003) {
+                                    player.Health.Death = { type: 0, user: nearPlayer.Name };
+                                    nearPlayer.Health.Death = { type: 0, user: player.Name };
+                                    player.Health.val = 0;
+                                    nearPlayer.Health.val = 0;
                                 }
                             }
                         }
-                        if (player.Health.val) io.sockets.sockets[Socket].emit("u", player.Near);
+                        if (player.Health.val && io.sockets.sockets[Socket]) io.sockets.sockets[Socket].emit("u", player.Near);
                     }
                 }
             }
@@ -148,7 +148,7 @@ io.on('connection', function (socket) {
     socket.on("join", function (usr) {
         if (!user.Health.val) {
             user = {
-                Name: usr.usr.toString().substr(0, 20),
+                Name: usr.usr?usr.usr.toString().substr(0, 20):"",
                 x: Math.random(),
                 y: Math.random(),
                 Angle: 0,
