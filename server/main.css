@@ -135,7 +135,7 @@ label.leaders {
     z-index: 1;
 }
 
-#wocher {
+#wacher {
     width: 100%;
     height: 100%;
     background: #DDD;
@@ -145,7 +145,7 @@ label.leaders {
     transition: all 0.3s ease;
 }
 
-#wocher:hover, #wocher:focus {
+#wacher:hover, #wacher:focus {
     background: #FFF;
     border-bottom-color: #888;
 }

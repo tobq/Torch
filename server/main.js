@@ -170,7 +170,7 @@ socket.on("b", function (b) {
 
 socket.on("d", function (d) {
     Base.Health = 0;
-    document.getElementById("output").innerHTML = "You were killed by "+(escapeHTML(d.user).trim()||"an anonymous Wocher");
+    document.getElementById("output").innerHTML = "You were killed by "+(escapeHTML(d.user).trim()||"an anonymous Wacher");
     openHome();
 });
 
@@ -210,7 +210,7 @@ function toggleFPS() {
     FPS.calcFPS = !FPS.calcFPS;
 }
 function joinGame() {
-    socket.emit("join", {usr: document.getElementById("wocher").value});
+    socket.emit("join", {usr: document.getElementById("wacher").value});
     hideHome();
     document.onmousemove = function (e) {
         if (Date.now() - lastM > 20) {
