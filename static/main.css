@@ -2,8 +2,13 @@
     font-family: Rubik;
     font-style: normal;
     font-weight: 400;
-    src: local('Rubik'), local('Rubik-Regular'), url(https://fonts.gstatic.com/s/rubik/v2/_mlO9_1N7oXYhEnEzC2l-g.woff2) format('woff2');
+    src: url(https://fonts.gstatic.com/s/rubik/v2/_mlO9_1N7oXYhEnEzC2l-g.woff2) format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+    font-family: Lemon;
+    src: url(/f/lemon.otf);
 }
 
 * {
@@ -98,6 +103,7 @@ label.leaders {
     white-space: nowrap;
     width: 100%;
 }
+
 .score, #score {
     font-size: 12px;
     color: #999;
@@ -114,21 +120,22 @@ label.leaders {
     left: 0px;
     right: 0px;
     margin: auto;
+    overflow: visible;
 }
 
 #con > * {
     display: inline-block;
     float: left;
+    width: calc(100% - 50px);
 }
 
-form {
+#inform {
     position: relative;
     height: 100%;
-    width: calc(100% - 50px);
     z-index: 1;
 }
 
-input[name="name"] {
+#wocher {
     width: 100%;
     height: 100%;
     background: #DDD;
@@ -138,13 +145,13 @@ input[name="name"] {
     transition: all 0.3s ease;
 }
 
-input[name="name"]:hover, input[name="name"]:focus {
+#wocher:hover, #wocher:focus {
     background: #FFF;
     border-bottom-color: #888;
 }
 
-button.settings {
-    width: 50px;
+#con > button.settings {
+    width: 50px !important;
     height: 100%;
     background: url("settings.svg");
     background-size: 30px;
@@ -154,13 +161,14 @@ button.settings {
     transition: transform 0.3s ease;
 }
 
+button.settings:focus, button.settings:hover {
+    transform: rotate(20deg);
+}
+
 section.settings {
     font-family: Rubik, Roboto, Arial;
-    position: absolute;
     text-align: center;
-    top: 0px;
-    left: 0px;
-    right: 50px;
+    margin-top: -40px;
     border-radius: 3px;
     padding-top: 0px;
     max-height: 40px;
@@ -169,6 +177,7 @@ section.settings {
     transition: max-height 0.4s cubic-bezier(0, 1, 0, 1), padding 0.4s ease;
     overflow: hidden;
 }
+
 section.settings.closed {
     transition: max-height 0.4s ease-in, padding 0.4s ease;
 }
@@ -243,25 +252,31 @@ section.settings .hr {
     display: inline-block;
     float: left;
 }
+
 .op > small {
     margin-left: 5px;
 }
+
 #coord {
     bottom: 10px;
     right: 10px;
     padding: 0px 15px;
     line-height: 35px;
 }
+
 span.your {
     color: #9adbff;
 }
+
 .your.score {
     color: #96D5F8;
 }
+
 #score {
     height: 0px;
     overflow: hidden;
 }
+
 #score:before {
     content: 'Score';
     display: inline-block;
@@ -269,4 +284,15 @@ span.your {
     color: #FFF;
     margin-right: 7px;
     margin-left: 10px;
+}
+
+#play {
+    margin-top: 10px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 3px;
+    font-size: 17px;
+    color: #FFF;
+    background: #274b33;
+    font-family: lemon, Roboto, Roboto-Regular, Arial;
 }

@@ -90,7 +90,7 @@ setInterval(function () {
                                         Health: nearPlayer.Health.val
                                     };
                                     nearPlayer.Health.val = Math.max(nearPlayer.Health.val - 1, 0);
-                                    if (!nearPlayer.Health) {
+                                    if (!nearPlayer.Health.val) {
                                         nearPlayer.Health.Death = {
                                             type: 1,
                                             user: player.Name
@@ -107,7 +107,7 @@ setInterval(function () {
                                 }
                             }
                         }
-                        if (player.Health) io.sockets.sockets[Socket].emit("u", player.Near);
+                        if (player.Health.val) io.sockets.sockets[Socket].emit("u", player.Near);
                     }
                 }
             }
@@ -140,27 +140,27 @@ server.listen(PORT, function () {
 });
 
 io.on('connection', function (socket) {
-    var user = {},
+    var user = {Health:{val:0}},
         game = Object.keys(games)[~~(Math.random() * Object.keys(games).length)];
     socket.join(game);
     socket.emit("si", {region: ServerRegion, name: game});
 
     socket.on("join", function (usr) {
-        if (!user.Health) {
+        if (!user.Health.val) {
             user = {
                 Name: usr.usr.toString().substr(0, 20),
                 x: Math.random(),
                 y: Math.random(),
                 Angle: 0,
-                Speed: {
-                    val: 0,
-                    max: 0.5
-                },
                 Score: 0,
                 Health: {
                     regen: 0.1,
                     val: 100,
                     max: 100
+                },
+                Speed: {
+                    val: 0,
+                    max: .5
                 },
                 Beam: {
                     length: 500,
@@ -171,7 +171,7 @@ io.on('connection', function (socket) {
         }
     });
     socket.on('i', function (i) {
-        if (user.Health) {
+        if (user.Health.val) {
             user.Angle = parseFloat(i.a);
             user.Speed.val = Math.min(Math.max(parseFloat(i.d - 30) / (user.Beam.length / 2), 0), user.Speed.max);
         }
@@ -183,10 +183,11 @@ io.on('connection', function (socket) {
         game = Object.keys(games)[~~(Math.random() * Object.keys(games).length)];
         socket.join(game);
         socket.emit("si", {region: ServerRegion, name: game});
-        user = {};
+        user = {Health:{val:0}};
     });
 
     socket.on('disconnect', function () {
+        user = {Health:{val:0}};
         delete games[game].playing[socket.id];
         console.log('Connection closed: ' + socket.id);
     });

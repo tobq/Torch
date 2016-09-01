@@ -64,32 +64,12 @@ window.onwheel = function (e) {
     sizes.scale = Math.min(Math.max(sizes.scale - (e.deltaY / 1500), 300 / (Base ? Base.Beam.length : 500)), 2);
     ctx.font = "bold " + Math.round(sizes.ball * 0.5 * sizes.scale) + "px Rubik";
 };
-
-$("form").submit(function (e) {
-    var name = $("[name='name']"),
-        home = $("#home");
-    socket.emit("join", {usr: name.val()});
-    home.css("opacity", 0);
-    $(".overlays").css("opacity", 1);
-    $("button.settings").attr("style", "");
-    $("section.settings").css({
-        "max-height": 40,
-        "padding-top": 0
-    }).addClass("closed");
-    document.onmousemove = function (e) {
-        if (Date.now() - lastM > 20) {
-            var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)) / sizes.scale,
-                angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
-            socket.emit("i", {a: angle, d: distance});
-            lastM = Date.now();
-        }
-    };
-    setTimeout(function () {
-        home.css("z-index", -2);
-    }, 300);
+document.getElementById("play").onclick = joinGame;
+document.getElementById("inform").onsubmit = function (e) {
+    joinGame();
     e.preventDefault();
     return false;
-});
+};
 (function draw() {
     var base = Base || {x: 0.5, y: 0.5},
         delta,
@@ -117,11 +97,11 @@ $("form").submit(function (e) {
         ctx.rotate(player.Angle + (Math.PI * 3 / 2));
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball * sizes.scale, Math.PI, 0);
-        ctx.arc(0, 0, player.Beam.length * sizes.scale, -player.Beam.angle + Math.PI / 2, player.Beam.angle + Math.PI / 2);
+        ctx.arc(0, 0, player.Beam.length * 2 * player.Speed.val * sizes.scale, -player.Beam.angle + Math.PI / 2, player.Beam.angle + Math.PI / 2);
         ctx.closePath();
         view = ctx.createRadialGradient(0, 0, sizes.ball * sizes.scale, 0, 0, Math.max(player.Beam.length * sizes.scale * 2 * player.Speed.val, sizes.ball * sizes.scale));
-        view.addColorStop(0.3, "rgba(255,255,255,0.6)");
-        view.addColorStop(1, "rgba(255,255,255,0)");
+        view.addColorStop(0, "rgba(255,255,255,0.6)");
+        view.addColorStop(1, "rgba(255,255,255,0.1)");
         ctx.fillStyle = view;
         ctx.fill();
         ctx.restore();
@@ -131,7 +111,7 @@ $("form").submit(function (e) {
         player = players[id];
         ctx.save();
         ctx.translate((canvas.width / 2) - (sizes.back.size * sizes.scale * (base.x - player.x)), (canvas.height / 2) - (sizes.back.size * sizes.scale * (base.y - player.y)));
-        ctx.fillStyle = "rgb(255,"+(Math.round(player.Health)+155)+","+(Math.round(player.Health)+155)+")";
+        ctx.fillStyle = "rgb(255," + (Math.round(player.Health) + 155) + "," + (Math.round(player.Health) + 155) + ")";
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball * sizes.scale + sizes.glow, 0, 2 * Math.PI);
         ctx.closePath();
@@ -163,7 +143,7 @@ socket.on("si", function (si) {
     $("#siR").html("Region: " + si.region);
     $("#si").css({
         height: "auto",
-        "padding-bottom": 10
+        "padding-bottom": 5
     });
 });
 socket.on("b", function (b) {
@@ -229,6 +209,31 @@ function toggleFPS() {
         fpsc.style.opacity = 1;
     }
     FPS.calcFPS = !FPS.calcFPS;
+}
+function joinGame() {
+    socket.emit("join", {usr: document.getElementById("wocher").value});
+    hideHome();
+    document.onmousemove = function (e) {
+        if (Date.now() - lastM > 20) {
+            var distance = Math.sqrt(Math.pow(($(document).width() / 2) - e.pageX, 2) + Math.pow(($(document).height() / 2) - e.pageY, 2)) / sizes.scale,
+                angle = Math.atan2(e.pageY - $(document).height() / 2, e.pageX - $(document).width() / 2);
+            socket.emit("i", {a: angle, d: distance});
+            lastM = Date.now();
+        }
+    };
+}
+function hideHome() {
+    var home = document.getElementById("home");
+    home.style.opacity = 0;
+    $(".overlays").css("opacity", 1);
+    $("button.settings").attr("style", "");
+    $("section.settings").css({
+        "max-height": 40,
+        "padding-top": 0
+    }).addClass("closed");
+    setTimeout(function () {
+        home.style.zIndex = -1;
+    }, 300);
 }
 function toggleCoords() {
     var coord = document.getElementById("coord"),
