@@ -119,7 +119,7 @@ $("form").submit(function (e) {
         ctx.arc(0, 0, sizes.ball * sizes.scale, Math.PI, 0);
         ctx.arc(0, 0, player.Beam.length * sizes.scale, -player.Beam.angle + Math.PI / 2, player.Beam.angle + Math.PI / 2);
         ctx.closePath();
-        view = ctx.createRadialGradient(0, 0, sizes.ball * sizes.scale, 0, 0, Math.max(player.Beam.length * sizes.scale * 2 * player.Speed, sizes.ball * sizes.scale));
+        view = ctx.createRadialGradient(0, 0, sizes.ball * sizes.scale, 0, 0, Math.max(player.Beam.length * sizes.scale * 2 * player.Speed.val, sizes.ball * sizes.scale));
         view.addColorStop(0.3, "rgba(255,255,255,0.6)");
         view.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = view;
@@ -131,7 +131,7 @@ $("form").submit(function (e) {
         player = players[id];
         ctx.save();
         ctx.translate((canvas.width / 2) - (sizes.back.size * sizes.scale * (base.x - player.x)), (canvas.height / 2) - (sizes.back.size * sizes.scale * (base.y - player.y)));
-        ctx.fillStyle = "#FFF";
+        ctx.fillStyle = "rgb(255,"+(Math.round(player.Health)+155)+","+(Math.round(player.Health)+155)+")";
         ctx.beginPath();
         ctx.arc(0, 0, sizes.ball * sizes.scale + sizes.glow, 0, 2 * Math.PI);
         ctx.closePath();
@@ -167,7 +167,7 @@ socket.on("si", function (si) {
     });
 });
 socket.on("b", function (b) {
-    if (Base) {
+    if (Base && Base.Health) {
         var Score = document.getElementById("score");
         Score.style.height = "20px";
         Score.innerHTML = Math.round(Base.Score);
@@ -192,7 +192,7 @@ socket.on("b", function (b) {
 });
 
 socket.on("d", function (d) {
-
+    Base.Health = 0;
 });
 
 $("button.settings").click(function () {
