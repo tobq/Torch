@@ -163,8 +163,8 @@ io.on('connection', function (socket) {
                     max: .5
                 },
                 Beam: {
-                    length: 500,
-                    angle: 0.6
+                    length: 1000,
+                    angle: 0.7
                 }
             };
             games[game].playing[socket.id] = user;

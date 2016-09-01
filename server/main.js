@@ -224,6 +224,7 @@ function joinGame() {
 function hideHome() {
     var home = document.getElementById("home");
     home.style.opacity = 0;
+    document.getElementById("output").innerHTML = "";
     $(".overlays").css("opacity", 1);
     $("button.settings").attr("style", "");
     $("section.settings").css({
