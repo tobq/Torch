@@ -138,8 +138,8 @@ socket.on("u", function (u) {
 });
 socket.on("si", function (si) {
     var SI = document.getElementById("si");
-    document.getElementById("siN").innherHTML="Server: " + si.name;
-    document.getElementById("siR").innherHTML="Region: " + si.region;
+    document.getElementById("siN").innerHTML="Server: " + si.name;
+    document.getElementById("siR").innerHTML="Region: " + si.region;
     SI.style.height = "auto";
     SI.style.paddingBottom = "5px";
 });
@@ -170,7 +170,7 @@ socket.on("b", function (b) {
 
 socket.on("d", function (d) {
     Base.Health = 0;
-    document.getElementById("output").innerHTML = "You were killed by "+(escapeHTML(d.user).trim()||"an anonymous Wacher");
+    document.getElementById("output").innerHTML = (d.type?"You collided with ":"You were killed by ")+(escapeHTML(d.user).trim()||"an anonymous Wacher");
     openHome();
 });
 

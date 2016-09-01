@@ -92,7 +92,7 @@ setInterval(function () {
                                     nearPlayer.Health.val = Math.max(nearPlayer.Health.val - 1, 0);
                                     if (!nearPlayer.Health.val) {
                                         nearPlayer.Health.Death = {
-                                            type: 1,
+                                            type: 0,
                                             user: player.Name
                                         }
                                         player.Score += 0.8 * nearPlayer.Score;
@@ -100,7 +100,7 @@ setInterval(function () {
                                     player.Score += 2;
                                 }
                                 if (d < 0.003) {
-                                    player.Health.Death = { type: 0, user: nearPlayer.Name };
+                                    player.Health.Death = { type: 1, user: nearPlayer.Name };
                                     nearPlayer.Health.Death = { type: 0, user: player.Name };
                                     player.Health.val = 0;
                                     nearPlayer.Health.val = 0;
