@@ -79,7 +79,7 @@ setInterval(function () {
                                     dA = Math.atan2(nearPlayer.y - player.y, nearPlayer.x - player.x),
                                     d;
                                 if (((d = Math.sqrt(Math.pow(player.x - nearPlayer.x, 2) + Math.pow(player.y - nearPlayer.y, 2))) < (player.Beam.length / 9000 * player.Speed.val))
-                                    && (dA <= player.Angle + player.Beam.angle && dA >= player.Angle - player.Beam.angle)) {
+                                    && (dA <= player.Angle + player.Beam.angle && dA >= player.Angle - player.Beam.angle) && player.Health.val && && nearPlayer.Health.val) {
                                     player.Near[nearSocket] = {
                                         Name: nearPlayer.Name,
                                         x: nearPlayer.x,
