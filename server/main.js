@@ -32,11 +32,10 @@ var canvas = document.getElementById("map"),
     sizes = {
         back: {
             size: 20000,
-            spacing: 200,
-            dotsize: 3
+            spacing: 300,
+            dotsize: 2
         },
-        ball: 30,
-        glow: 0,
+        ball: 20,
         scale: 1
     },
     lastM = 0,
@@ -78,15 +77,20 @@ document.getElementById("inform").onsubmit = function (e) {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#112632";
-    for (var xc = -sizes.back.spacing * sizes.scale; xc < canvas.width + sizes.back.spacing * sizes.scale; xc += (sizes.back.spacing * sizes.scale)) {
-        for (var yc = -sizes.back.spacing * sizes.scale; yc < canvas.height + sizes.back.spacing * sizes.scale; yc += (sizes.back.spacing * sizes.scale)) {
-            ctx.beginPath();
-            ctx.arc(xc + offX, yc + offY, sizes.back.dotsize * sizes.scale, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.fill();
-        }
+    ctx.strokeStyle = "#112632";
+    for (var xc = -sizes.back.spacing * sizes.scale; xc < canvas.width + sizes.back.spacing * sizes.scale; xc += (sizes.back.spacing * sizes.scale)) for (var yc = -sizes.back.spacing * sizes.scale; yc < canvas.height + sizes.back.spacing * sizes.scale; yc += (sizes.back.spacing * sizes.scale)) {
+        // ctx.beginPath();
+        // ctx.arc(xc + offX, yc + offY, sizes.back.dotsize * sizes.scale, 0, 2 * Math.PI);
+        // ctx.closePath();
+        // ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(xc + offX- sizes.back.dotsize * sizes.scale, yc + offY - sizes.back.dotsize * sizes.scale);
+        ctx.lineTo(xc + offX +  sizes.back.dotsize * sizes.scale,yc + offY +  sizes.back.dotsize * sizes.scale);
+        ctx.moveTo(xc + offX+ sizes.back.dotsize * sizes.scale, yc + offY - sizes.back.dotsize * sizes.scale);
+        ctx.lineTo(xc + offX-  sizes.back.dotsize * sizes.scale, yc + offY +  sizes.back.dotsize * sizes.scale);
+        ctx.stroke();
     }
-    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fillStyle = "rgba(200,200,200,0.02)";
     ctx.fillRect(backX, backY, sizes.back.size * sizes.scale, sizes.back.size * sizes.scale);
     for (var id in players) {
         var player = players[id];
@@ -111,7 +115,7 @@ document.getElementById("inform").onsubmit = function (e) {
         ctx.translate((canvas.width / 2) - (sizes.back.size * sizes.scale * (base.x - player.x)), (canvas.height / 2) - (sizes.back.size * sizes.scale * (base.y - player.y)));
         ctx.fillStyle = "rgb(255," + (Math.round(player.Health) + 155) + "," + (Math.round(player.Health) + 155) + ")";
         ctx.beginPath();
-        ctx.arc(0, 0, sizes.ball * sizes.scale + sizes.glow, 0, 2 * Math.PI);
+        ctx.arc(0, 0, sizes.ball * sizes.scale, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
         ctx.fillStyle = "#AAA";
@@ -138,8 +142,8 @@ socket.on("u", function (u) {
 });
 socket.on("si", function (si) {
     var SI = document.getElementById("si");
-    document.getElementById("siN").innerHTML="Server: " + si.name;
-    document.getElementById("siR").innerHTML="Region: " + si.region;
+    document.getElementById("siN").innerHTML = "Server: " + si.name;
+    document.getElementById("siR").innerHTML = "Region: " + si.region;
     SI.style.height = "auto";
     SI.style.paddingBottom = "5px";
 });
@@ -170,7 +174,7 @@ socket.on("b", function (b) {
 
 socket.on("d", function (d) {
     Base.Health = 0;
-    document.getElementById("output").innerHTML = (d.type?"You collided with ":"You were killed by ")+(escapeHTML(d.user).trim()||"an anonymous Wacher");
+    document.getElementById("output").innerHTML = (d.type ? "You collided with " : "You were killed by ") + (escapeHTML(d.user).trim() || "an anonymous Wacher");
     openHome();
 });
 
@@ -235,7 +239,7 @@ function hideHome() {
         home.style.zIndex = -1;
     }, 300);
 }
-function openHome(){
+function openHome() {
     $("#home").css({opacity: 1, "z-index": 0});
     $(".overlays").css("opacity", 0);
     document.onmousemove = null;

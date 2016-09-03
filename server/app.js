@@ -163,7 +163,7 @@ io.on('connection', function (socket) {
                     max: .5
                 },
                 Beam: {
-                    length: 1000,
+                    length: 500,
                     angle: 0.7
                 }
             };
