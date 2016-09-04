@@ -30,6 +30,9 @@ body, html {
 }
 
 #map {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
     font-family: Rubik;
     position: fixed;
     bottom: 0px;

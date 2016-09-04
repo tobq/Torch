@@ -25,7 +25,16 @@ var express = require('express'),
             }
         }
         return Games;
-    })();
+    })(),
+    Powers = [function(User){
+        if (User.Power.state && User.Power.time){
+            User.Beam.angle = Math.min(User.Beam.angle+0.07,Math.PI/2)
+            User.Power.time = Math.max(User.Power.time-0.1,0);
+        } else {
+            User.Beam.angle = Math.max(User.Beam.angle-0.1,0.7);
+            User.Power.time = Math.min(User.Power.time+0.05,100);
+        }
+    }];
 
 setInterval(function () {
     for (var game in games) {
@@ -34,6 +43,7 @@ setInterval(function () {
             var Socket = player;
             player = games[game].playing[player];
             if (player.Health.val) {
+                Powers[player.Power.type](player);
                 player.x = Math.min(Math.max((Math.cos(player.Angle) / (1000 / player.Speed.val)) + player.x, 0), 1);
                 player.y = Math.min(Math.max((Math.sin(player.Angle) / (1000 / player.Speed.val)) + player.y, 0), 1);
                 player.Score += 0.185 * player.Speed.val;
@@ -165,6 +175,11 @@ io.on('connection', function (socket) {
                 Beam: {
                     length: 500,
                     angle: 0.7
+                },
+                Power: {
+                    type: 0,
+                    state: 0,
+                    time: 10
                 }
             };
             games[game].playing[socket.id] = user;
@@ -176,7 +191,9 @@ io.on('connection', function (socket) {
             user.Speed.val = Math.min(Math.max(parseFloat(i.d - 30) / (user.Beam.length / 2), 0), user.Speed.max);
         }
     });
-
+    socket.on("p",function(p){
+        if (user.Health.val) user.Power.state = p;
+    });
     socket.on('leave', function () {
         delete games[game].playing[socket.id];
         socket.leave(game);

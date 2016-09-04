@@ -31,9 +31,9 @@ var canvas = document.getElementById("map"),
     },
     sizes = {
         back: {
-            size: 20000,
+            size: 15000,
             spacing: 300,
-            dotsize: 2
+            dotsize: 4
         },
         ball: 20,
         scale: 1
@@ -76,8 +76,9 @@ document.getElementById("inform").onsubmit = function (e) {
         offY = backY % (sizes.back.spacing * sizes.scale);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#112632";
-    ctx.strokeStyle = "#112632";
+    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx.lineWidth = 3*sizes.scale;
     for (var xc = -sizes.back.spacing * sizes.scale; xc < canvas.width + sizes.back.spacing * sizes.scale; xc += (sizes.back.spacing * sizes.scale)) for (var yc = -sizes.back.spacing * sizes.scale; yc < canvas.height + sizes.back.spacing * sizes.scale; yc += (sizes.back.spacing * sizes.scale)) {
         // ctx.beginPath();
         // ctx.arc(xc + offX, yc + offY, sizes.back.dotsize * sizes.scale, 0, 2 * Math.PI);
@@ -264,3 +265,12 @@ function toggleCoords() {
 socket.on("console", function (log) {
     console.log(log);
 });
+
+window.onmousedown = function(){
+    socket.emit("p",1);
+}
+
+window.onmouseup = function(){
+    socket.emit("p",0);
+}
+canvas.onselectstart = function() { return false; };
