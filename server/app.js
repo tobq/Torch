@@ -3,7 +3,7 @@ var express = require('express'),
     server = require("http").createServer(app),
     io = require("socket.io").listen(server),
     IP = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1",
-    PORT = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 8080,
+    PORT = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || process.argv[2] || 80,
     NumOfSections = 10,
     Sections = (function () {
         var sections = [];
@@ -26,13 +26,13 @@ var express = require('express'),
         }
         return Games;
     })(),
-    Powers = [function(User){
-        if (User.Power.state && User.Power.time){
-            User.Beam.angle = Math.min(User.Beam.angle+0.07,Math.PI/2)
-            User.Power.time = Math.max(User.Power.time-0.1,0);
+    Powers = [function (User) {
+        if (User.Power.state && User.Power.time) {
+            User.Beam.angle = Math.min(User.Beam.angle + 0.07, Math.PI / 2)
+            User.Power.time = Math.max(User.Power.time - 0.1, 0);
         } else {
-            User.Beam.angle = Math.max(User.Beam.angle-0.1,0.7);
-            User.Power.time = Math.min(User.Power.time+0.05,100);
+            User.Beam.angle = Math.max(User.Beam.angle - 0.1, 0.7);
+            User.Power.time = Math.min(User.Power.time + 0.05, 100);
         }
     }];
 
@@ -105,7 +105,7 @@ setInterval(function () {
                                             type: 0,
                                             user: player.Name
                                         }
-                                        player.Score +=500 + (  0.8 * nearPlayer.Score);
+                                        player.Score += 500 + (0.8 * nearPlayer.Score);
                                     }
                                     player.Score += 2;
                                 }
@@ -150,15 +150,15 @@ server.listen(PORT, function () {
 });
 
 io.on('connection', function (socket) {
-    var user = {Health:{val:0}},
+    var user = { Health: { val: 0 } },
         game = Object.keys(games)[~~(Math.random() * Object.keys(games).length)];
     socket.join(game);
-    socket.emit("si", {region: ServerRegion, name: game});
+    socket.emit("si", { region: ServerRegion, name: game });
 
     socket.on("join", function (usr) {
         if (!user.Health.val) {
             user = {
-                Name: usr.usr?usr.usr.toString().substr(0, 20):"",
+                Name: usr.usr ? usr.usr.toString().substr(0, 20) : "",
                 x: Math.random(),
                 y: Math.random(),
                 Angle: 0,
@@ -191,7 +191,7 @@ io.on('connection', function (socket) {
             user.Speed.val = Math.min(Math.max(parseFloat(i.d - 30) / (user.Beam.length / 2), 0), user.Speed.max);
         }
     });
-    socket.on("p",function(p){
+    socket.on("p", function (p) {
         if (user.Health.val) user.Power.state = p;
     });
     socket.on('leave', function () {
@@ -199,12 +199,12 @@ io.on('connection', function (socket) {
         socket.leave(game);
         game = Object.keys(games)[~~(Math.random() * Object.keys(games).length)];
         socket.join(game);
-        socket.emit("si", {region: ServerRegion, name: game});
-        user = {Health:{val:0}};
+        socket.emit("si", { region: ServerRegion, name: game });
+        user = { Health: { val: 0 } };
     });
 
     socket.on('disconnect', function () {
-        user = {Health:{val:0}};
+        user = { Health: { val: 0 } };
         delete games[game].playing[socket.id];
         console.log('Connection closed: ' + socket.id);
     });
